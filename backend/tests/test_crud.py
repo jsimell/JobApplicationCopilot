@@ -38,6 +38,7 @@ RESOURCE_CASES = [
                 "title", "company", "location", "start_date", "end_date",
                 "description",
             ],
+            "required_fields": ["title", "company"],
             "all_payload": {
                 "title": "Engineer",
                 "company": "Example Corp",
@@ -49,7 +50,7 @@ RESOURCE_CASES = [
             "update_field": "title",
             "update_value": "Senior engineer",
             "second_update": {"company": "Updated Corp", "location": "London"},
-            "null_field": "company",
+            "nullable_field": "location",
             "empty_string_field": "description",
             "invalid_type_field": "title",
         },
@@ -63,6 +64,7 @@ RESOURCE_CASES = [
                 "title", "subtitle", "start_date", "end_date",
                 "description", "url",
             ],
+            "required_fields": ["title"],
             "all_payload": {
                 "title": "Portfolio",
                 "subtitle": "Personal website",
@@ -77,7 +79,7 @@ RESOURCE_CASES = [
                 "subtitle": "Updated subtitle",
                 "description": "Updated description",
             },
-            "null_field": "subtitle",
+            "nullable_field": "subtitle",
             "empty_string_field": "description",
             "invalid_type_field": "title",
         },
@@ -91,6 +93,7 @@ RESOURCE_CASES = [
                 "finished_date", "title", "school", "location", "gpa",
                 "major", "minor", "additional_information",
             ],
+            "required_fields": ["title", "school"],
             "all_payload": {
                 "finished_date": "2019-06-15",
                 "title": "Bachelor of Science",
@@ -107,7 +110,7 @@ RESOURCE_CASES = [
                 "school": "Updated University",
                 "major": "Data Science",
             },
-            "null_field": "major",
+            "nullable_field": "major",
             "empty_string_field": "additional_information",
             "invalid_type_field": "title",
         },
@@ -118,11 +121,12 @@ RESOURCE_CASES = [
             "name": "skills",
             "id_field": "skill_id",
             "fields": ["name", "proficiency"],
+            "required_fields": ["name"],
             "all_payload": {"name": "Python", "proficiency": "Advanced"},
             "update_field": "name",
             "update_value": "Rust",
             "second_update": {"name": "TypeScript", "proficiency": "Expert"},
-            "null_field": "proficiency",
+            "nullable_field": "proficiency",
             "empty_string_field": "name",
             "invalid_type_field": "name",
         },
@@ -133,11 +137,12 @@ RESOURCE_CASES = [
             "name": "languages",
             "id_field": "language_id",
             "fields": ["language", "proficiency"],
+            "required_fields": ["language", "proficiency"],
             "all_payload": {"language": "English", "proficiency": "Fluent"},
             "update_field": "language",
             "update_value": "French",
             "second_update": {"language": "Spanish", "proficiency": "Native"},
-            "null_field": "proficiency",
+            "nullable_field": None,
             "empty_string_field": "language",
             "invalid_type_field": "language",
         },
@@ -148,6 +153,7 @@ RESOURCE_CASES = [
             "name": "hobbies",
             "id_field": "hobby_id",
             "fields": ["name", "description"],
+            "required_fields": ["name"],
             "all_payload": {
                 "name": "Cycling",
                 "description": "Weekend road cycling",
@@ -158,7 +164,7 @@ RESOURCE_CASES = [
                 "name": "Photography",
                 "description": "Landscape photography",
             },
-            "null_field": "description",
+            "nullable_field": "description",
             "empty_string_field": "description",
             "invalid_type_field": "name",
         },
@@ -166,7 +172,12 @@ RESOURCE_CASES = [
     ),
 ]
 
-RESOURCE_BY_NAME = {case.values[0]["name"]                    : case.values[0] for case in RESOURCE_CASES}
+RESOURCE_BY_NAME = {case.values[0]["name"]: case.values[0] for case in RESOURCE_CASES}
+NULLABLE_RESOURCE_CASES = [
+    pytest.param(case.values[0], id=case.id)
+    for case in RESOURCE_CASES
+    if case.values[0]["nullable_field"] is not None
+]
 
 
 def _checked_connection() -> psycopg.Connection:
@@ -365,6 +376,22 @@ def test_1_4_1_5_get_and_verify_two_created_users(
     assert {row["user_id"] for row in database_users} == user_ids
 
 
+def test_get_profile_for_existing_user(
+    client: TestClient, profile: dict[str, Any]
+) -> None:
+    response = client.get(f"/users/{profile['user_id']}/profile")
+    assert response.status_code == 200
+    assert response.json() == profile
+
+
+def test_get_profile_for_user_without_profile(
+    client: TestClient, created_users: Callable[[], UUID]
+) -> None:
+    user_id = created_users()
+    response = client.get(f"/users/{user_id}/profile")
+    assert response.status_code == 404
+
+
 # 2. Profile tests
 def test_2_1_1_create_profile_with_all_fields(
     client: TestClient, user_id: UUID
@@ -380,16 +407,20 @@ def test_2_1_1_create_profile_with_all_fields(
             assert data[field] == value
 
 
-def test_2_1_2_create_profile_with_only_required_field(
+def test_2_1_2_create_profile_with_only_required_fields(
     client: TestClient, user_id: UUID
 ) -> None:
-    response = client.post("/profiles", json={"user_id": str(user_id)})
+    response = client.post(
+        "/profiles",
+        json={
+            "user_id": str(user_id),
+            "full_name": "Test User",
+            "headline": "Test headline",
+        },
+    )
     assert response.status_code == 201
     assert response.json()["user_id"] == str(user_id)
-    for field in (
-        "full_name", "headline", "location", "summary",
-        "career_goals_description",
-    ):
+    for field in ("location", "summary", "career_goals_description"):
         assert response.json()[field] is None
 
 
@@ -422,6 +453,21 @@ def test_2_1_6_invalid_user_uuid_returns_validation_error(
 ) -> None:
     response = client.post("/profiles", json={"user_id": "not-a-uuid"})
     assert response.status_code == 422
+
+
+def test_profile_create_rejects_missing_or_null_required_fields(
+    client: TestClient, user_id: UUID
+) -> None:
+    payload = _profile_payload(user_id)
+    for field in ("user_id", "full_name", "headline"):
+        missing_field_payload = payload.copy()
+        del missing_field_payload[field]
+        assert client.post(
+            "/profiles", json=missing_field_payload).status_code == 422
+
+        null_field_payload = {**payload, field: None}
+        assert client.post(
+            "/profiles", json=null_field_payload).status_code == 422
 
 
 def test_2_2_1_get_profiles_when_none_exist(client: TestClient) -> None:
@@ -487,19 +533,29 @@ def test_2_3_3_patch_multiple_profile_fields(
                value for field, value in changes.items())
 
 
-def test_2_3_4_explicit_null_profile_field_is_stored_as_null(
+def test_2_3_4_explicit_null_optional_profile_field_is_stored_as_null(
     client: TestClient, profile: dict[str, Any]
 ) -> None:
     response = client.patch(
-        f"/profiles/{profile['profile_id']}", json={"headline": None}
+        f"/profiles/{profile['profile_id']}", json={"location": None}
     )
     assert response.status_code == 200
-    assert response.json()["headline"] is None
+    assert response.json()["location"] is None
     row = _fetch_one(
-        "SELECT headline FROM profiles WHERE profile_id = %s",
+        "SELECT location FROM profiles WHERE profile_id = %s",
         (profile["profile_id"],),
     )
-    assert row is not None and row["headline"] is None
+    assert row is not None and row["location"] is None
+
+
+def test_patch_profile_rejects_null_required_fields(
+    client: TestClient, profile: dict[str, Any]
+) -> None:
+    for field in ("full_name", "headline"):
+        response = client.patch(
+            f"/profiles/{profile['profile_id']}", json={field: None}
+        )
+        assert response.status_code == 422
 
 
 def test_2_3_5_empty_string_profile_field_is_stored(
@@ -568,8 +624,10 @@ def test_3_1_2_create_child_with_some_fields_omits_others_as_null(
     child_factory: Callable[..., dict[str, Any]],
     profile: dict[str, Any],
 ) -> None:
-    field = resource["fields"][0]
-    payload = {field: resource["all_payload"][field]}
+    payload = {
+        field: resource["all_payload"][field]
+        for field in resource["required_fields"]
+    }
     response = child_factory(resource, profile["profile_id"], payload)
     for name in resource["fields"]:
         expected = payload.get(name)
@@ -587,11 +645,39 @@ def test_3_1_3_create_child_with_empty_payload(
     response = client.post(
         f"/profiles/{profile['profile_id']}/{resource['name']}", json={}
     )
-    assert response.status_code == 201
-    data = response.json()
-    assert data[resource["id_field"]] > 0
-    assert data["profile_id"] == profile["profile_id"]
-    assert all(data[field] is None for field in resource["fields"])
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize("resource", RESOURCE_CASES)
+def test_child_create_rejects_missing_or_null_required_fields(
+    resource: dict[str, Any],
+    client: TestClient,
+    profile: dict[str, Any],
+) -> None:
+    url = f"/profiles/{profile['profile_id']}/{resource['name']}"
+    for field in resource["required_fields"]:
+        missing_field_payload = resource["all_payload"].copy()
+        del missing_field_payload[field]
+        assert client.post(url, json=missing_field_payload).status_code == 422
+
+        null_field_payload = {**resource["all_payload"], field: None}
+        assert client.post(url, json=null_field_payload).status_code == 422
+
+
+@pytest.mark.parametrize("resource", RESOURCE_CASES)
+def test_child_create_rejects_invalid_pydantic_field_type(
+    resource: dict[str, Any],
+    client: TestClient,
+    profile: dict[str, Any],
+) -> None:
+    payload = {
+        **resource["all_payload"],
+        resource["invalid_type_field"]: ["invalid"],
+    }
+    response = client.post(
+        f"/profiles/{profile['profile_id']}/{resource['name']}", json=payload
+    )
+    assert response.status_code == 422
 
 
 @pytest.mark.parametrize("resource", RESOURCE_CASES)
@@ -724,13 +810,13 @@ def test_3_3_3_patch_multiple_child_fields(
         assert response.json()[field] == expected
 
 
-@pytest.mark.parametrize("resource", RESOURCE_CASES)
-def test_3_3_4_explicit_null_child_field_is_stored_as_null(
+@pytest.mark.parametrize("resource", NULLABLE_RESOURCE_CASES)
+def test_3_3_4_explicit_null_optional_child_field_is_stored_as_null(
     child_record: dict[str, Any],
     client: TestClient,
     resource: dict[str, Any],
 ) -> None:
-    field = resource["null_field"]
+    field = resource["nullable_field"]
     record_id = child_record[resource["id_field"]]
     response = client.patch(
         f"/{resource['name']}/{record_id}", json={field: None})
@@ -742,6 +828,20 @@ def test_3_3_4_explicit_null_child_field_is_stored_as_null(
         (record_id,),
     )
     assert row is not None and row[field] is None
+
+
+@pytest.mark.parametrize("resource", RESOURCE_CASES)
+def test_patch_child_rejects_null_required_fields(
+    child_record: dict[str, Any],
+    client: TestClient,
+    resource: dict[str, Any],
+) -> None:
+    record_id = child_record[resource["id_field"]]
+    for field in resource["required_fields"]:
+        response = client.patch(
+            f"/{resource['name']}/{record_id}", json={field: None}
+        )
+        assert response.status_code == 422
 
 
 @pytest.mark.parametrize("resource", RESOURCE_CASES)

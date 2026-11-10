@@ -1,12 +1,26 @@
 from uuid import UUID
 from datetime import date
 from decimal import Decimal
+from typing import ClassVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
+
+
+class _PatchModel(BaseModel):
+    _non_nullable_fields: ClassVar[tuple[str, ...]] = ()
+
+    @model_validator(mode="after")
+    def reject_null_non_nullable_fields(self):
+        for field in self._non_nullable_fields:
+            if field in self.model_fields_set and getattr(self, field) is None:
+                raise ValueError(f"{field} cannot be null")
+        return self
 
 
 # Profile Models
-class Profile(BaseModel):
+class Profile(_PatchModel):
+    _non_nullable_fields = ("full_name", "headline")
+
     full_name: str | None = None
     headline: str | None = None
     location: str | None = None
@@ -15,16 +29,19 @@ class Profile(BaseModel):
 
 
 class ProfileCreate(Profile):
+    full_name: str
+    headline: str
     user_id: UUID
 
 
-class ProfileResponse(Profile):
+class ProfileResponse(ProfileCreate):
     profile_id: int
-    user_id: UUID
 
 
 # Work Experience Models
-class WorkExperience(BaseModel):
+class WorkExperience(_PatchModel):
+    _non_nullable_fields = ("title", "company")
+
     title: str | None = None
     company: str | None = None
     location: str | None = None
@@ -33,13 +50,20 @@ class WorkExperience(BaseModel):
     description: str | None = None
 
 
-class WorkExperienceResponse(WorkExperience):
+class WorkExperienceCreate(WorkExperience):
+    title: str
+    company: str
+
+
+class WorkExperienceResponse(WorkExperienceCreate):
     work_experience_id: int
     profile_id: int
 
 
 # Project Models
-class Project(BaseModel):
+class Project(_PatchModel):
+    _non_nullable_fields = ("title",)
+
     title: str | None = None
     subtitle: str | None = None
     start_date: date | None = None
@@ -48,38 +72,57 @@ class Project(BaseModel):
     url: str | None = None
 
 
-class ProjectResponse(Project):
+class ProjectCreate(Project):
+    title: str
+
+
+class ProjectResponse(ProjectCreate):
     project_id: int
     profile_id: int
 
 
 # Skill Models
-class Skill(BaseModel):
+class Skill(_PatchModel):
+    _non_nullable_fields = ("name",)
+
     name: str | None = None
     proficiency: str | None = None
 
 
-class SkillResponse(Skill):
+class SkillCreate(Skill):
+    name: str
+
+
+class SkillResponse(SkillCreate):
     skill_id: int
     profile_id: int
 
 
 # Language Models
-class Language(BaseModel):
+class Language(_PatchModel):
+    _non_nullable_fields = ("language", "proficiency")
+
     language: str | None = None
     proficiency: str | None = None
 
 
-class LanguageResponse(Language):
+class LanguageCreate(Language):
+    language: str
+    proficiency: str
+
+
+class LanguageResponse(LanguageCreate):
     language_id: int
     profile_id: int
 
 
 # Degree Models
-class Degree(BaseModel):
-    finished_date: date | None = None
+class Degree(_PatchModel):
+    _non_nullable_fields = ("title", "school")
+
     title: str | None = None
     school: str | None = None
+    finished_date: date | None = None
     location: str | None = None
     gpa: Decimal | None = None
     major: str | None = None
@@ -87,18 +130,29 @@ class Degree(BaseModel):
     additional_information: str | None = None
 
 
-class DegreeResponse(Degree):
+class DegreeCreate(Degree):
+    title: str
+    school: str
+
+
+class DegreeResponse(DegreeCreate):
     degree_id: int
     profile_id: int
 
 
 # Hobby Models
-class Hobby(BaseModel):
+class Hobby(_PatchModel):
+    _non_nullable_fields = ("name",)
+
     name: str | None = None
     description: str | None = None
 
 
-class HobbyResponse(Hobby):
+class HobbyCreate(Hobby):
+    name: str
+
+
+class HobbyResponse(HobbyCreate):
     hobby_id: int
     profile_id: int
 

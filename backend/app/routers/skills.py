@@ -3,7 +3,7 @@ from psycopg.errors import ForeignKeyViolation
 
 from app import database
 from app.dependencies import get_existing_profile
-from app.models import ProfileResponse, Skill, SkillResponse
+from app.models import ProfileResponse, Skill, SkillCreate, SkillResponse
 
 router = APIRouter()
 
@@ -13,7 +13,7 @@ router = APIRouter()
     status_code=201,
     response_model=SkillResponse,
 )
-def create_skill(profile_id: int, skill: Skill):
+def create_skill(profile_id: int, skill: SkillCreate):
     try:
         return database.create_skill(
             profile_id,

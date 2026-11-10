@@ -66,6 +66,12 @@ def get_profile(profile_id: int):
     )
 
 
+def get_profile_by_user_id(user_id: UUID):
+    return execute_query(
+        """SELECT * FROM profiles WHERE user_id = %s;""", (user_id,)
+    )
+
+
 def get_profiles():
     return execute_query_all(
         """SELECT * FROM profiles;""", ()

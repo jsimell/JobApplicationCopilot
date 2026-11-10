@@ -3,7 +3,7 @@ from psycopg.errors import ForeignKeyViolation
 
 from app import database
 from app.dependencies import get_existing_profile
-from app.models import Language, LanguageResponse, ProfileResponse
+from app.models import Language, LanguageCreate, LanguageResponse, ProfileResponse
 
 router = APIRouter()
 
@@ -13,7 +13,7 @@ router = APIRouter()
     status_code=201,
     response_model=LanguageResponse,
 )
-def create_language(profile_id: int, language: Language):
+def create_language(profile_id: int, language: LanguageCreate):
     try:
         return database.create_language(
             profile_id,

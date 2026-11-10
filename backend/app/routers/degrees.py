@@ -3,7 +3,7 @@ from psycopg.errors import ForeignKeyViolation
 
 from app import database
 from app.dependencies import get_existing_profile
-from app.models import Degree, DegreeResponse, ProfileResponse
+from app.models import Degree, DegreeCreate, DegreeResponse, ProfileResponse
 
 router = APIRouter()
 
@@ -13,7 +13,7 @@ router = APIRouter()
     status_code=201,
     response_model=DegreeResponse,
 )
-def create_degree(profile_id: int, degree: Degree):
+def create_degree(profile_id: int, degree: DegreeCreate):
     try:
         return database.create_degree(
             profile_id,

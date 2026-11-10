@@ -3,7 +3,7 @@ from psycopg.errors import ForeignKeyViolation
 
 from app import database
 from app.dependencies import get_existing_profile
-from app.models import ProfileResponse, Project, ProjectResponse
+from app.models import ProfileResponse, Project, ProjectCreate, ProjectResponse
 
 router = APIRouter()
 
@@ -13,7 +13,7 @@ router = APIRouter()
     status_code=201,
     response_model=ProjectResponse,
 )
-def create_project(profile_id: int, project: Project):
+def create_project(profile_id: int, project: ProjectCreate):
     try:
         return database.create_project(
             profile_id,

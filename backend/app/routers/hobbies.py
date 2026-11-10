@@ -3,7 +3,7 @@ from psycopg.errors import ForeignKeyViolation
 
 from app import database
 from app.dependencies import get_existing_profile
-from app.models import Hobby, HobbyResponse, ProfileResponse
+from app.models import Hobby, HobbyCreate, HobbyResponse, ProfileResponse
 
 router = APIRouter()
 
@@ -13,7 +13,7 @@ router = APIRouter()
     status_code=201,
     response_model=HobbyResponse,
 )
-def create_hobby(profile_id: int, hobby: Hobby):
+def create_hobby(profile_id: int, hobby: HobbyCreate):
     try:
         return database.create_hobby(
             profile_id,

@@ -3,7 +3,12 @@ from psycopg.errors import ForeignKeyViolation
 
 from app import database
 from app.dependencies import get_existing_profile
-from app.models import ProfileResponse, WorkExperience, WorkExperienceResponse
+from app.models import (
+    ProfileResponse,
+    WorkExperience,
+    WorkExperienceCreate,
+    WorkExperienceResponse,
+)
 
 router = APIRouter()
 
@@ -13,7 +18,7 @@ router = APIRouter()
     status_code=201,
     response_model=WorkExperienceResponse,
 )
-def add_work_experience(profile_id: int, work_experience: WorkExperience):
+def add_work_experience(profile_id: int, work_experience: WorkExperienceCreate):
     try:
         return database.create_work_experience(
             profile_id,
