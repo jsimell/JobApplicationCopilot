@@ -77,7 +77,7 @@ function TailorPlaceholder() {
         </div>
         <p className="mt-4 text-sm font-semibold text-foreground">Tailor your application</p>
         <p className="mt-1 max-w-xs text-sm leading-relaxed text-muted-foreground text-pretty">
-          Paste a job description and the assistant will highlight relevant experience and draft a tailored CV from your profile.
+          Paste a job description and the assistant will highlight relevant experience and draft a tailored application based on your profile.
         </p>
         <span className="mt-4 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">Coming soon</span>
       </div>
@@ -92,10 +92,11 @@ function AskPlaceholder() {
         <div className="flex size-11 items-center justify-center rounded-full bg-secondary text-primary">
           <MessageSquareText className="size-5" aria-hidden="true" />
         </div>
-        <p className="mt-4 text-sm font-semibold text-foreground">Ask about your career</p>
+        <p className="mt-4 text-sm font-semibold text-foreground">Ask about your profile</p>
         <p className="mt-1 max-w-xs text-sm leading-relaxed text-muted-foreground text-pretty">
           Get advice grounded in your profile — interview prep, skill gaps, or how to phrase an achievement.
         </p>
+        <span className="mt-4 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">Coming soon</span>
       </div>
       <div className="flex items-center gap-2 rounded-xl border bg-card p-1.5 pl-3.5 opacity-60">
         <label htmlFor="ask-ai-input" className="sr-only">

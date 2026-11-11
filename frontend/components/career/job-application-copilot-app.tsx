@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { Bot, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, UserRound } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/services/utils'
+import appLogo from '@/assets/appLogo.png'
 import { AiAssistantPanel } from './ai-assistant-panel'
 import { EditorProvider, useEditor } from './editor-context'
 import { ProfilePanel } from './profile-panel'
@@ -83,14 +85,12 @@ function AppShell() {
 }
 
 function TopBar() {
-  const { hasUnsavedChanges, simulateFailure, setSimulateFailure } = useEditor()
+  const { hasUnsavedChanges } = useEditor()
   return (
     <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b bg-card px-4 sm:px-5">
       <div className="flex items-center gap-2.5">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-          CP
-        </div>
-        <p className="text-sm font-semibold tracking-tight text-primary">CareerProfileApp</p>
+        <Image src={appLogo} alt="" aria-hidden="true" className="size-8 rounded-lg object-cover" />
+        <p className="text-sm font-semibold tracking-tight text-primary">Job Application Copilot</p>
       </div>
       <div className="flex items-center gap-4">
         {hasUnsavedChanges && (
@@ -99,34 +99,12 @@ function TopBar() {
             Unsaved changes
           </span>
         )}
-        <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
-          <span className="hidden sm:inline">Simulate save errors</span>
-          <span className="sm:hidden">Errors</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={simulateFailure}
-            aria-label="Simulate save errors"
-            onClick={() => setSimulateFailure(!simulateFailure)}
-            className={cn(
-              'relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-              simulateFailure ? 'bg-destructive' : 'bg-input',
-            )}
-          >
-            <span
-              className={cn(
-                'absolute left-0.5 top-0.5 size-4 rounded-full bg-white shadow-sm transition-transform',
-                simulateFailure && 'translate-x-4',
-              )}
-            />
-          </button>
-        </label>
         <div
           className="flex size-8 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-primary"
           aria-label="Signed in as Elena Marković"
           role="img"
         >
-          EM
+          JS
         </div>
       </div>
     </header>

@@ -20,8 +20,6 @@ interface EditorContextValue {
   finishEdit: (id: string) => void
   setDirty: (id: string, dirty: boolean) => void
   hasUnsavedChanges: boolean
-  simulateFailure: boolean
-  setSimulateFailure: (value: boolean) => void
 }
 
 const EditorContext = createContext<EditorContextValue | null>(null)
@@ -36,7 +34,6 @@ export function EditorProvider({ children }: { children: ReactNode }) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [dirtyIds, setDirtyIds] = useState<Set<string>>(() => new Set())
   const [pending, setPending] = useState<PendingSwitch | null>(null)
-  const [simulateFailure, setSimulateFailure] = useState(false)
   const keepEditingRef = useRef<HTMLButtonElement>(null)
 
   const activeIsDirty = activeId !== null && dirtyIds.has(activeId)
@@ -115,10 +112,8 @@ export function EditorProvider({ children }: { children: ReactNode }) {
       finishEdit,
       setDirty,
       hasUnsavedChanges: dirtyIds.size > 0,
-      simulateFailure,
-      setSimulateFailure,
     }),
-    [activeId, requestEdit, guardNavigation, finishEdit, setDirty, dirtyIds.size, simulateFailure],
+    [activeId, requestEdit, guardNavigation, finishEdit, setDirty, dirtyIds.size],
   )
 
   return (
@@ -160,11 +155,4 @@ export function EditorProvider({ children }: { children: ReactNode }) {
       )}
     </EditorContext.Provider>
   )
-}
-
-/** Simulated network save. Replace with a call to the FastAPI backend. */
-export function simulateSave(fail: boolean) {
-  return new Promise<void>((resolve, reject) => {
-    setTimeout(() => (fail ? reject(new Error('The server could not be reached. Your changes are still here — try again.')) : resolve()), 900)
-  })
 }

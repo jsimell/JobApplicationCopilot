@@ -1,4 +1,4 @@
-import { CareerProfileApp } from '@/components/career/career-profile-app'
+import { CareerProfileApp } from '@/components/career/job-application-copilot-app'
 
 export default function Page() {
   return <CareerProfileApp />

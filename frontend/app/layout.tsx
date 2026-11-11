@@ -1,20 +1,17 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
+import appLogo from '@/assets/appLogo.png'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'CareerProfileApp — Career Profile',
+  title: 'Job Application Copilot - AI Assisted Job Application Tailoring',
   description:
-    'Manage a comprehensive career profile and tailor applications with an AI assistant.',
+    'Manage a comprehensive career profile and tailor job applications with an AI assistant.',
   icons: {
-    icon: [
-      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: '/apple-icon.png',
+    icon: appLogo.src,
+    apple: appLogo.src,
   },
 }
 
