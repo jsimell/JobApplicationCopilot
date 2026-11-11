@@ -1,14 +1,16 @@
-# CareerProfileApp
+# Job Application Copilot
 
 A work-in-progress full-stack application for managing career information and eventually streamlining the job search process through LLM-powered features.
 
-The core idea is to maintain an all-encompassing career profile containing a person's professional background, education, skills, projects, interests, and career goals. This information can then be used to identify and extract the most relevant details for specific job opportunities.
+The core idea is to maintain an all-encompassing career profile containing a person's professional background, career goals, education, skills, projects, etc. This information will then be used to identify and extract the most relevant details for specific job opportunities through future AI-assisted features.
+
+<img width="1863" height="934" alt="Screenshot From 2026-11-11 15-08-19" src="https://github.com/user-attachments/assets/de04c308-a106-4a40-bab8-ce1a3387a423" />
 
 ## Development Goals
 
 The project serves two main purposes:
 
-- **Developing full-stack skills:** Building on existing frontend development experience while gaining hands-on experience with backend development, REST APIs, relational databases, automated testing, and LLM integration.
+- **Developing full-stack development skills:** Building on existing frontend development experience while gaining hands-on experience with backend development, REST APIs, relational databases, automated testing, and LLM integration.
 - **Improving the job search workflow:** Creating a practical tool for maintaining career information and making the process of preparing job applications more efficient.
 
 ## Tech Stack
@@ -20,8 +22,11 @@ The project serves two main purposes:
 
 ## Current Status & Next Steps
 
-The backend REST API, PostgreSQL database schema, and automated integration tests have been implemented.
+The FastAPI backend, PostgreSQL database, automated backend tests, and Next.js/React frontend are implemented.
 
-The current focus is on building the **core functionality without AI**, starting with a React frontend that allows users to easily manage, update, and export their career profiles.
+Current stage of the frontend–backend integration is that it supports profile creation, basic information updates, and degree and skill management. 
 
-The goal is to establish a functional and reliable application first, providing a solid foundation for integrating LLM-powered features in later development stages.
+**Next steps:**
+- Finish the backend integration for the remaining profile sections.
+- Develop the LLM-powered assistant for tailoring job applications.
+- Potentially implement user authentication and authorization as additional backend development practice.
