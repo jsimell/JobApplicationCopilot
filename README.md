@@ -27,6 +27,6 @@ The FastAPI backend, PostgreSQL database, automated backend tests, and an initia
 Current stage of the frontend–backend integration is that it supports profile creation, basic information updates, and degree and skill management. The rest of the profile sections will be connected to the backend next.
 
 **Next steps:**
-- Finish the backend integration for the remaining profile sections.
-- Develop the LLM-powered assistant for tailoring job applications.
+- Improve the design of the profile panel and fix usability issues to move from a prototype to a more polished design.
+- Design the LLM API integration and begin implementing the LLM-powered features.
 - Potentially implement user authentication and authorization as additional backend development practice.
