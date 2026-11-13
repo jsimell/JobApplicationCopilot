@@ -25,8 +25,8 @@ CREATE TABLE "projects" (
   "profile_id" integer NOT NULL REFERENCES profiles(profile_id) ON DELETE CASCADE,
   "title" varchar NOT NULL,
   "subtitle" varchar,
-  "start_date" date,
-  "end_date" date,
+  "project_date" date,
+  "status" varchar NOT NULL CHECK ("status" IN ('ongoing', 'completed')),
   "description" text,
   "url" varchar
 );
@@ -43,7 +43,7 @@ CREATE TABLE "work_experiences" (
   "title" varchar NOT NULL,
   "company" varchar NOT NULL,
   "location" varchar,
-  "start_date" date,
+  "start_date" date NOT NULL,
   "end_date" date,
   "description" text
 );

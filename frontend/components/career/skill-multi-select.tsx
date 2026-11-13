@@ -1,10 +1,19 @@
 'use client'
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Check, ChevronDown, Search, X } from 'lucide-react'
 import { cn } from '@/services/utils'
 import type { Skill } from './types'
 import { chipColor } from './ui'
+
+type PopupPosition = {
+  left: number
+  width: number
+  top?: number
+  bottom?: number
+  listMaxHeight: number
+}
 
 export function SkillMultiSelect({
   skills,
@@ -20,7 +29,9 @@ export function SkillMultiSelect({
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
+  const [popupPosition, setPopupPosition] = useState<PopupPosition | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
+  const popupRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
   const listId = useId()
 
@@ -34,10 +45,46 @@ export function SkillMultiSelect({
     if (!open) return
     searchRef.current?.focus()
     const onPointer = (e: PointerEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false)
+      const target = e.target as Node
+      if (!rootRef.current?.contains(target) && !popupRef.current?.contains(target)) setOpen(false)
     }
     document.addEventListener('pointerdown', onPointer)
     return () => document.removeEventListener('pointerdown', onPointer)
+  }, [open])
+
+  useEffect(() => {
+    if (!open) {
+      setPopupPosition(null)
+      return
+    }
+
+    const updatePosition = () => {
+      const rect = rootRef.current?.getBoundingClientRect()
+      if (!rect) return
+
+      const margin = 8
+      const spaceBelow = window.innerHeight - rect.bottom - margin
+      const spaceAbove = rect.top - margin
+      const showBelow = spaceBelow >= 176 || spaceBelow >= spaceAbove
+      const availableHeight = showBelow ? spaceBelow : spaceAbove
+
+      setPopupPosition({
+        left: Math.max(margin, Math.min(rect.left, window.innerWidth - rect.width - margin)),
+        width: Math.min(rect.width, window.innerWidth - margin * 2),
+        ...(showBelow
+          ? { top: rect.bottom + 6 }
+          : { bottom: window.innerHeight - rect.top + 6 }),
+        listMaxHeight: Math.max(64, Math.min(224, availableHeight - 96)),
+      })
+    }
+
+    updatePosition()
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
+    return () => {
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
+    }
   }, [open])
 
   const toggle = (id: number) => onChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id])
@@ -68,19 +115,29 @@ export function SkillMultiSelect({
         ))}
         <button
           type="button"
-          aria-haspopup="listbox"
-          aria-expanded={open}
           aria-labelledby={labelledBy}
-          onClick={() => setOpen((o) => !o)}
-          className="ml-auto inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+          onClick={() => setOpen(true)}
+          className={cn(
+            'inline-flex h-7 shrink-0 items-center gap-1 rounded-md px-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground',
+            open && 'hidden',
+          )}
         >
-          {selected.length ? 'Edit' : 'Select skills'}
-          <ChevronDown className={cn('size-3.5 transition-transform', open && 'rotate-180')} aria-hidden="true" />
+          Add skill +
         </button>
       </div>
 
-      {open && (
-        <div className="absolute inset-x-0 top-full z-30 mt-1.5 overflow-hidden rounded-lg border bg-popover shadow-lg animate-in fade-in-0 zoom-in-95">
+      {open && popupPosition && typeof document !== 'undefined' && createPortal(
+        <div
+          ref={popupRef}
+          style={{
+            position: 'fixed',
+            left: popupPosition.left,
+            width: popupPosition.width,
+            top: popupPosition.top,
+            bottom: popupPosition.bottom,
+          }}
+          className="z-[1000] overflow-hidden rounded-lg border bg-popover shadow-lg animate-in fade-in-0 zoom-in-95"
+        >
           <div className="flex items-center gap-2 border-b px-3">
             <Search className="size-4 text-muted-foreground" aria-hidden="true" />
             <input
@@ -117,7 +174,13 @@ export function SkillMultiSelect({
               className="h-10 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/70"
             />
           </div>
-          <ul id={listId} role="listbox" aria-multiselectable="true" className="max-h-56 overflow-y-auto p-1">
+          <ul
+            id={listId}
+            role="listbox"
+            aria-multiselectable="true"
+            style={{ maxHeight: popupPosition.listMaxHeight }}
+            className="overflow-y-auto p-1"
+          >
             {filtered.length === 0 && (
               <li className="px-3 py-4 text-center text-sm text-muted-foreground">
                 No matching skills. Add new skills in the Skills section.
@@ -155,11 +218,12 @@ export function SkillMultiSelect({
           </ul>
           <div className="flex items-center justify-between border-t bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
             <span>{value.length} selected</span>
-            <button type="button" onClick={() => setOpen(false)} className="font-medium text-primary hover:underline">
+            <button type="button" onClick={() => setOpen(false)} className="text-sm font-medium text-primary hover:underline">
               Done
             </button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   )

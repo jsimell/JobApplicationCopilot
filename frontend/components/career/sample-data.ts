@@ -95,8 +95,8 @@ export const sampleProfile: CareerProfile = {
       profile_id: PROFILE_ID,
       title: 'Open Transit Feed Validator',
       subtitle: 'Open-source GTFS data quality toolkit',
-      start_date: '2023-05-01',
-      end_date: null,
+      project_date: '2023-05-01',
+      status: 'ongoing',
       description:
         'A command-line tool and web service that validates public transit feeds against 80+ rules and produces actionable reports. Used by three regional transit agencies.',
       url: 'https://github.com/emarkovic/transit-validator',
@@ -107,8 +107,8 @@ export const sampleProfile: CareerProfile = {
       profile_id: PROFILE_ID,
       title: 'Real-time Trip Metrics',
       subtitle: 'Streaming analytics at Flowline',
-      start_date: '2022-09-01',
-      end_date: '2023-04-01',
+      project_date: '2023-04-01',
+      status: 'completed',
       description:
         'Designed a streaming architecture that computes trip KPIs within seconds of events, replacing an hourly batch job and enabling live operations dashboards.',
       url: null,

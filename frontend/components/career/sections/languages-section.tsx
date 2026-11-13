@@ -11,11 +11,13 @@ export function LanguagesSection({
   items,
   onChange,
   onSave,
+  onDelete,
 }: {
   profileId: number
   items: Language[]
   onChange: (v: Language[]) => void
   onSave: (language: Language) => Promise<Language>
+  onDelete: (languageId: number) => Promise<void>
 }) {
   return (
     <SectionCard
@@ -30,6 +32,7 @@ export function LanguagesSection({
         items={items}
         onChange={onChange}
         onSaveEntry={onSave}
+        onDeleteEntry={(language) => onDelete(language.id)}
         noun="language"
         createEmpty={() => ({ id: newTempId(), profile_id: profileId, language: '', proficiency: '' })}
         validate={(v) => (v.language.trim() && v.proficiency.trim() ? null : 'Please enter a language and select a proficiency.')}

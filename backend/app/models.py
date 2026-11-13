@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import date
 from decimal import Decimal
-from typing import ClassVar
+from typing import ClassVar, Literal
 
 from pydantic import BaseModel, model_validator
 
@@ -40,7 +40,7 @@ class ProfileResponse(ProfileCreate):
 
 # Work Experience Models
 class WorkExperience(_PatchModel):
-    _non_nullable_fields = ("title", "company")
+    _non_nullable_fields = ("title", "company", "start_date")
 
     title: str | None = None
     company: str | None = None
@@ -53,6 +53,7 @@ class WorkExperience(_PatchModel):
 class WorkExperienceCreate(WorkExperience):
     title: str
     company: str
+    start_date: date
 
 
 class WorkExperienceResponse(WorkExperienceCreate):
@@ -62,12 +63,12 @@ class WorkExperienceResponse(WorkExperienceCreate):
 
 # Project Models
 class Project(_PatchModel):
-    _non_nullable_fields = ("title",)
+    _non_nullable_fields = ("title", "status")
 
     title: str | None = None
     subtitle: str | None = None
-    start_date: date | None = None
-    end_date: date | None = None
+    project_date: date | None = None
+    status: Literal["ongoing", "completed"] = "completed"
     description: str | None = None
     url: str | None = None
 

@@ -11,11 +11,13 @@ export function HobbiesSection({
   items,
   onChange,
   onSave,
+  onDelete,
 }: {
   profileId: number
   items: Hobby[]
   onChange: (v: Hobby[]) => void
   onSave: (hobby: Hobby) => Promise<Hobby>
+  onDelete: (hobbyId: number) => Promise<void>
 }) {
   return (
     <SectionCard
@@ -30,6 +32,7 @@ export function HobbiesSection({
         items={items}
         onChange={onChange}
         onSaveEntry={onSave}
+        onDeleteEntry={(hobby) => onDelete(hobby.id)}
         noun="hobby"
         createEmpty={() => ({ id: newTempId(), profile_id: profileId, name: '', description: null })}
         validate={(v) => (v.name.trim() ? null : 'Please enter a name for this hobby.')}

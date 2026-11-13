@@ -2,9 +2,7 @@
 """
 Integration tests for the Career Profile Manager API.
 
-These tests were generated with AI. By describing the test cases and
-expected behaviors to an LLM, a comprehensive prompt was created to
-guide GitHub Copilot in generating the actual test implementations.
+These tests have been generated with AI.
 
 The tests use pytest, FastAPI's TestClient, and a separate PostgreSQL
 test database to verify CRUD operations, error handling, input validation,
@@ -38,7 +36,7 @@ RESOURCE_CASES = [
                 "title", "company", "location", "start_date", "end_date",
                 "description",
             ],
-            "required_fields": ["title", "company"],
+            "required_fields": ["title", "company", "start_date"],
             "all_payload": {
                 "title": "Engineer",
                 "company": "Example Corp",
@@ -61,15 +59,16 @@ RESOURCE_CASES = [
             "name": "projects",
             "id_field": "project_id",
             "fields": [
-                "title", "subtitle", "start_date", "end_date",
+                "title", "subtitle", "project_date", "status",
                 "description", "url",
             ],
             "required_fields": ["title"],
+            "default_fields": {"status": "completed"},
             "all_payload": {
                 "title": "Portfolio",
                 "subtitle": "Personal website",
-                "start_date": "2021-02-03",
-                "end_date": "2022-05-06",
+                "project_date": "2021-02-03",
+                "status": "ongoing",
                 "description": "A portfolio project",
                 "url": "https://example.test/portfolio",
             },
@@ -77,6 +76,7 @@ RESOURCE_CASES = [
             "update_value": "Updated portfolio",
             "second_update": {
                 "subtitle": "Updated subtitle",
+                "status": "completed",
                 "description": "Updated description",
             },
             "nullable_field": "subtitle",
@@ -172,7 +172,8 @@ RESOURCE_CASES = [
     ),
 ]
 
-RESOURCE_BY_NAME = {case.values[0]["name"]: case.values[0] for case in RESOURCE_CASES}
+RESOURCE_BY_NAME = {case.values[0]["name"]
+    : case.values[0] for case in RESOURCE_CASES}
 NULLABLE_RESOURCE_CASES = [
     pytest.param(case.values[0], id=case.id)
     for case in RESOURCE_CASES
@@ -630,10 +631,36 @@ def test_3_1_2_create_child_with_some_fields_omits_others_as_null(
     }
     response = child_factory(resource, profile["profile_id"], payload)
     for name in resource["fields"]:
-        expected = payload.get(name)
+        expected = resource.get("default_fields", {}).get(
+            name, payload.get(name))
         if name == "gpa" and expected is not None:
             expected = float(Decimal(expected))
         assert response[name] == expected
+
+
+def test_project_create_rejects_invalid_status(
+    client: TestClient, profile: dict[str, Any]
+) -> None:
+    response = client.post(
+        f"/profiles/{profile['profile_id']}/projects",
+        json={"title": "Invalid status", "status": "in_progress"},
+    )
+    assert response.status_code == 422
+
+
+def test_project_patch_rejects_invalid_status(
+    client: TestClient, profile: dict[str, Any]
+) -> None:
+    created = client.post(
+        f"/profiles/{profile['profile_id']}/projects",
+        json={"title": "Project for status validation"},
+    )
+    assert created.status_code == 201, created.text
+    response = client.patch(
+        f"/projects/{created.json()['project_id']}",
+        json={"status": "in_progress"},
+    )
+    assert response.status_code == 422
 
 
 @pytest.mark.parametrize("resource", RESOURCE_CASES)

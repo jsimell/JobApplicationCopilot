@@ -6,19 +6,21 @@ import { EntryList } from '../entry-editor'
 import { SectionCard } from '../section-card'
 import { SkillMultiSelect } from '../skill-multi-select'
 import type { Project, Skill } from '../types'
-import { Field, MonthYearInput, TextArea, TextInput, chipColor, formatRange, newTempId, orNull } from '../ui'
+import { Field, MonthYearInput, Select, TextArea, TextInput, chipColor, formatMonth, newTempId, orNull } from '../ui'
 
 export function ProjectsSection({
   profileId,
   items,
   onChange,
   onSave,
+  onDelete,
   skills,
 }: {
   profileId: number
   items: Project[]
   onChange: (v: Project[]) => void
   onSave: (project: Project) => Promise<Project>
+  onDelete: (projectId: number) => Promise<void>
   skills: Skill[]
 }) {
   const skillById = new Map(skills.map((s) => [s.id, s]))
@@ -35,14 +37,15 @@ export function ProjectsSection({
         items={items}
         onChange={onChange}
         onSaveEntry={onSave}
+        onDeleteEntry={(project) => onDelete(project.id)}
         noun="project"
         createEmpty={() => ({
           id: newTempId(),
           profile_id: profileId,
           title: '',
           subtitle: null,
-          start_date: null,
-          end_date: null,
+          project_date: null,
+          status: 'completed' as const,
           description: null,
           url: null,
           skill_ids: [],
@@ -50,7 +53,6 @@ export function ProjectsSection({
         validate={(v) => {
           if (!v.title.trim()) return 'Please add a project title.'
           if (v.url && !/^https?:\/\/\S+\.\S+/.test(v.url)) return 'The URL should start with http:// or https://'
-          if (v.start_date && v.end_date && v.end_date < v.start_date) return 'The end date cannot be before the start date.'
           return null
         }}
         renderSummary={(p) => {
@@ -59,7 +61,13 @@ export function ProjectsSection({
             <div>
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
                 <p className="font-medium text-foreground">{p.title}</p>
-                <p className="text-xs tabular-nums text-muted-foreground">{formatRange(p.start_date, p.end_date, 'Ongoing')}</p>
+                <p className="text-xs tabular-nums text-muted-foreground">
+                  {p.project_date
+                    ? `${formatMonth(p.project_date)} · ${p.status === 'ongoing' ? 'Ongoing' : 'Completed'}`
+                    : p.status === 'ongoing'
+                      ? 'Ongoing'
+                      : 'Completed'}
+                </p>
               </div>
               {p.subtitle && <p className="text-sm text-muted-foreground">{p.subtitle}</p>}
               {p.description && <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-foreground/75">{p.description}</p>}
@@ -99,16 +107,27 @@ export function ProjectsSection({
                   onChange={(e) => update({ subtitle: orNull(e.target.value) })}
                 />
               </Field>
-              <Field label="Start date" htmlFor={fid('start_date')}>
-                <MonthYearInput
-                  id={fid('start_date')}
-                  ariaLabel="Start date"
-                  value={d.start_date}
-                  onChange={(start_date) => update({ start_date })}
-                />
+              <Field label="Status" htmlFor={fid('status')}>
+                <Select
+                  id={fid('status')}
+                  value={d.status}
+                  onChange={(e) => {
+                    if (e.target.value === 'ongoing' || e.target.value === 'completed') {
+                      update({ status: e.target.value })
+                    }
+                  }}
+                >
+                  <option value="completed">Completed</option>
+                  <option value="ongoing">Ongoing</option>
+                </Select>
               </Field>
-              <Field label="End date" htmlFor={fid('end_date')} hint="Leave empty for ongoing projects.">
-                <MonthYearInput id={fid('end_date')} ariaLabel="End date" value={d.end_date} onChange={(end_date) => update({ end_date })} />
+              <Field label={d.status === 'ongoing' ? 'Start date' : 'Completion date'} htmlFor={fid('project_date')}>
+                <MonthYearInput
+                  id={fid('project_date')}
+                  ariaLabel={d.status === 'ongoing' ? 'Start date' : 'Completion date'}
+                  value={d.project_date}
+                  onChange={(project_date) => update({ project_date })}
+                />
               </Field>
               <Field label="Description" htmlFor={fid('description')} className="sm:col-span-2">
                 <TextArea

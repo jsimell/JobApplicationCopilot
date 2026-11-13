@@ -165,12 +165,14 @@ export function MonthYearInput({
   onChange,
   disabled,
   ariaLabel,
+  required,
 }: {
   id?: string
   value: DateValue | null
   onChange: (value: DateValue | null) => void
   disabled?: boolean
   ariaLabel: string
+  required?: boolean
 }) {
   const [year, month] = value ? value.split('-') : ['', '']
   return (
@@ -180,6 +182,7 @@ export function MonthYearInput({
         aria-label={`${ariaLabel} month`}
         value={month}
         disabled={disabled}
+        required={required}
         onChange={(e) => {
           const m = e.target.value
           onChange(m ? `${year || currentYear}-${m}-01` : null)
@@ -196,6 +199,7 @@ export function MonthYearInput({
         aria-label={`${ariaLabel} year`}
         value={year}
         disabled={disabled}
+        required={required}
         onChange={(e) => {
           const y = e.target.value
           onChange(y ? `${y}-${month || '01'}-01` : null)

@@ -110,7 +110,7 @@ def create_work_experience(
     title: str | None,
     company: str | None,
     location: str | None,
-    start_date: date | None,
+    start_date: date,
     end_date: date | None,
     description: str | None,
 ):
@@ -205,12 +205,20 @@ def update_degree(degree_id: int, **fields):
 
 
 # Project Functions
-def create_project(profile_id: int, title: str, subtitle: str | None, start_date: date, end_date: date | None, description: str | None, url: str | None):
+def create_project(
+    profile_id: int,
+    title: str,
+    subtitle: str | None,
+    project_date: date | None,
+    status: str,
+    description: str | None,
+    url: str | None,
+):
     return execute_query("""
-                INSERT INTO projects (profile_id, title, subtitle, start_date, end_date, description, url)
+                INSERT INTO projects (profile_id, title, subtitle, project_date, status, description, url)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
-                RETURNING project_id, profile_id, title, subtitle, start_date, end_date, description, url;
-                """, (profile_id, title, subtitle, start_date, end_date, description, url)
+                RETURNING project_id, profile_id, title, subtitle, project_date, status, description, url;
+                """, (profile_id, title, subtitle, project_date, status, description, url)
     )
 
 

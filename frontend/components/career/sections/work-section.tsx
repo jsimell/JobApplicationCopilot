@@ -11,11 +11,13 @@ export function WorkSection({
   items,
   onChange,
   onSave,
+  onDelete,
 }: {
   profileId: number
   items: WorkExperience[]
   onChange: (v: WorkExperience[]) => void
   onSave: (work: WorkExperience) => Promise<WorkExperience>
+  onDelete: (workExperienceId: number) => Promise<void>
 }) {
   return (
     <SectionCard
@@ -29,6 +31,7 @@ export function WorkSection({
         items={items}
         onChange={onChange}
         onSaveEntry={onSave}
+        onDeleteEntry={(workExperience) => onDelete(workExperience.id)}
         noun="experience"
         createEmpty={() => ({
           id: newTempId(),
@@ -42,6 +45,7 @@ export function WorkSection({
         })}
         validate={(v) => {
           if (!v.title.trim() || !v.company.trim()) return 'Please add a job title and company.'
+          if (!v.start_date) return 'Please add a start date.'
           if (v.start_date && v.end_date && v.end_date < v.start_date) return 'The end date cannot be before the start date.'
           return null
         }}
@@ -103,11 +107,12 @@ function WorkForm({ draft: d, update }: { draft: WorkExperience; update: (p: Par
           onChange={(e) => update({ location: orNull(e.target.value) })}
         />
       </Field>
-      <Field label="Start date" htmlFor={fid('start_date')}>
+      <Field label="Start date" htmlFor={fid('start_date')} required>
         <MonthYearInput
           id={fid('start_date')}
           ariaLabel="Start date"
           value={d.start_date}
+          required
           onChange={(start_date) => update({ start_date })}
         />
       </Field>

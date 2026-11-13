@@ -29,8 +29,8 @@ export interface Project {
   profile_id: number
   title: string
   subtitle: string | null
-  start_date: DateValue | null
-  end_date: DateValue | null
+  project_date: DateValue | null
+  status: 'ongoing' | 'completed'
   description: string | null
   url: string | null
   skill_ids: number[]
