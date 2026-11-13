@@ -10,21 +10,21 @@ The core idea is to maintain an all-encompassing career profile containing a per
 
 The project serves two main purposes:
 
-- **Developing full-stack development skills:** Building on existing frontend development experience while gaining hands-on experience with backend development, REST APIs, relational databases, automated testing, and LLM integration.
+- **Developing full-stack development skills:** Building on existing frontend development and LLM integration experience while gaining hands-on experience with backend development, REST APIs, relational databases, automated testing, and AI-assisted development.
 - **Improving the job search workflow:** Creating a practical tool for maintaining career information and making the process of preparing job applications more efficient.
 
 ## Tech Stack
 
 - **Backend:** Python, FastAPI, PostgreSQL, Pydantic
-- **Frontend:** React, TypeScript (planned)
+- **Frontend:** React, TypeScript, Next.js
 - **Testing:** pytest, FastAPI TestClient
-- **AI:** LLM API integration (planned)
+- **LLM Features:** OpenAI API (planned)
 
 ## Current Status & Next Steps
 
-The FastAPI backend, PostgreSQL database, automated backend tests, and Next.js/React frontend are implemented.
+The FastAPI backend, PostgreSQL database, automated backend tests, and an initial prototype of the Next.js/React frontend are implemented.
 
-Current stage of the frontend–backend integration is that it supports profile creation, basic information updates, and degree and skill management. 
+Current stage of the frontend–backend integration is that it supports profile creation, basic information updates, and degree and skill management. The rest of the profile sections will be connected to the backend next.
 
 **Next steps:**
 - Finish the backend integration for the remaining profile sections.
