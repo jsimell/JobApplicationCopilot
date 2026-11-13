@@ -22,9 +22,7 @@ The project serves two main purposes:
 
 ## Current Status & Next Steps
 
-The FastAPI backend, PostgreSQL database, automated backend tests, and an initial prototype of the Next.js/React frontend are implemented.
-
-Current stage of the frontend–backend integration is that it supports profile creation, basic information updates, and degree and skill management. The rest of the profile sections will be connected to the backend next.
+The FastAPI backend, PostgreSQL database, automated backend tests, and an initial prototype of the Next.js/React frontend are implemented. Profile information can be created, updated, and retrieved through the backend API, and the frontend allows users to view and edit their profile information.
 
 **Next steps:**
 - Improve the design of the profile panel and fix usability issues to move from a prototype to a more polished design.
