@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import { Briefcase } from 'lucide-react'
 import { EntryList } from '../entry-editor'
 import { SectionCard } from '../section-card'
@@ -19,6 +20,8 @@ export function WorkSection({
   onSave: (work: WorkExperience) => Promise<WorkExperience>
   onDelete: (workExperienceId: number) => Promise<void>
 }) {
+  const currentRoleById = useRef(new Map<number, boolean>())
+
   return (
     <SectionCard
       id="work_experiences"
@@ -30,7 +33,12 @@ export function WorkSection({
         sectionKey="work_experiences"
         items={items}
         onChange={onChange}
-        onSaveEntry={onSave}
+        onSaveEntry={(work) =>
+          onSave({
+            ...work,
+            end_date: currentRoleById.current.get(work.id) ? null : work.end_date,
+          })
+        }
         onDeleteEntry={(workExperience) => onDelete(workExperience.id)}
         noun="experience"
         createEmpty={() => ({
@@ -46,11 +54,18 @@ export function WorkSection({
         validate={(v) => {
           if (!v.title.trim() || !v.company.trim()) return 'Please add a job title and company.'
           if (!v.start_date) return 'Please add a start date.'
-          if (v.start_date && v.end_date && v.end_date < v.start_date) return 'The end date cannot be before the start date.'
+          const endDate = currentRoleById.current.get(v.id) ? null : v.end_date
+          if (v.start_date && endDate && endDate < v.start_date) return 'The end date cannot be before the start date.'
           return null
         }}
         renderSummary={(w) => <WorkSummary item={w} />}
-        renderForm={(d, update) => <WorkForm draft={d} update={update} />}
+        renderForm={(d, update) => (
+          <WorkForm
+            draft={d}
+            update={update}
+            onCurrentRoleChange={(isCurrent) => currentRoleById.current.set(d.id, isCurrent)}
+          />
+        )}
       />
     </SectionCard>
   )
@@ -88,8 +103,20 @@ function WorkSummary({ item: w }: { item: WorkExperience }) {
   )
 }
 
-function WorkForm({ draft: d, update }: { draft: WorkExperience; update: (p: Partial<WorkExperience>) => void }) {
-  const ongoing = !d.end_date
+function WorkForm({
+  draft: d,
+  update,
+  onCurrentRoleChange,
+}: {
+  draft: WorkExperience
+  update: (p: Partial<WorkExperience>) => void
+  onCurrentRoleChange: (isCurrent: boolean) => void
+}) {
+  const [currentlyWorking, setCurrentlyWorking] = useState(!d.end_date)
+  useEffect(() => {
+    onCurrentRoleChange(currentlyWorking)
+  }, [d.id, onCurrentRoleChange, currentlyWorking])
+
   const fid = (field: string) => `work-${d.id}-${field}`
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -116,10 +143,25 @@ function WorkForm({ draft: d, update }: { draft: WorkExperience; update: (p: Par
           onChange={(start_date) => update({ start_date })}
         />
       </Field>
-      <Field label="End date" htmlFor={fid('end_date')} hint={ongoing ? 'Leave empty if you still work here.' : undefined}>
-        <MonthYearInput id={fid('end_date')} ariaLabel="End date" value={d.end_date} onChange={(end_date) => update({ end_date })} />
-        {!ongoing && <Checkbox label="I currently work here" checked={false} onChange={(v) => v && update({ end_date: null })} />}
+      <Field label="End date" htmlFor={fid('end_date')}>
+        <MonthYearInput
+          id={fid('end_date')}
+          ariaLabel="End date"
+          value={currentlyWorking ? null : d.end_date}
+          disabled={currentlyWorking}
+          onChange={(end_date) => update({ end_date })}
+        />
       </Field>
+      <div className="sm:col-span-2">
+        <Checkbox
+          label="I am currently working on this role"
+          checked={currentlyWorking}
+          onChange={(isCurrent) => {
+            setCurrentlyWorking(isCurrent)
+            onCurrentRoleChange(isCurrent)
+          }}
+        />
+      </div>
       <Field
         label="Description"
         htmlFor={fid('description')}
