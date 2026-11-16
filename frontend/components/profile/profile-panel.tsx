@@ -25,7 +25,7 @@ import type {
   Project,
   Language,
   Hobby,
-} from "./types";
+} from "../shared/types";
 import type { CreateProfileInput } from "@/services/career-profile-api";
 import {
   updateBasicDetails,

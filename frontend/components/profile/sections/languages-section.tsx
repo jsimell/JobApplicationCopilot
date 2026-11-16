@@ -3,7 +3,7 @@
 import { Languages } from 'lucide-react'
 import { EntryList } from '../entry-editor'
 import { SectionCard } from '../section-card'
-import { LANGUAGE_PROFICIENCIES, type Language } from '../types'
+import { LANGUAGE_PROFICIENCIES, type Language } from '../../shared/types'
 import { Field, Select, TextInput, newTempId } from '../ui'
 
 export function LanguagesSection({

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Briefcase } from 'lucide-react'
 import { EntryList } from '../entry-editor'
 import { SectionCard } from '../section-card'
-import type { WorkExperience } from '../types'
+import type { WorkExperience } from '../../shared/types'
 import { Checkbox, Field, MonthYearInput, TextArea, TextInput, formatDuration, formatRange, newTempId, orNull } from '../ui'
 
 export function WorkSection({

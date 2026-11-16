@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, ChevronDown, Search, X } from 'lucide-react'
 import { cn } from '@/services/utils'
-import type { Skill } from './types'
+import type { Skill } from '../shared/types'
 import { chipColor } from './ui'
 
 type PopupPosition = {

@@ -3,7 +3,7 @@
 import { GraduationCap } from 'lucide-react'
 import { EntryList } from '../entry-editor'
 import { SectionCard } from '../section-card'
-import type { Degree } from '../types'
+import type { Degree } from '../../shared/types'
 import { DecimalInput, Field, MonthYearInput, TextArea, TextInput, formatMonth, newTempId, orNull } from '../ui'
 
 export function DegreesSection({

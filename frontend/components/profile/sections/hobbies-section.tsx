@@ -3,7 +3,7 @@
 import { Heart } from 'lucide-react'
 import { EntryList } from '../entry-editor'
 import { SectionCard } from '../section-card'
-import type { Hobby } from '../types'
+import type { Hobby } from '../../shared/types'
 import { Field, TextArea, TextInput, newTempId, orNull } from '../ui'
 
 export function HobbiesSection({

@@ -1,4 +1,4 @@
-import type { CareerProfile } from './types'
+import type { CareerProfile } from '../shared/types'
 
 const PROFILE_ID = 1
 

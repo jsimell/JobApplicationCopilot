@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { AlertTriangle } from 'lucide-react'
-import { Button } from './ui'
+import { Button } from '../profile/ui'
 
 interface PendingSwitch {
   nextId: string | null

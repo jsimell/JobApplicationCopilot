@@ -6,9 +6,9 @@ import { Bot, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, Us
 import Image from 'next/image'
 import { cn } from '@/services/utils'
 import appLogo from '@/assets/appLogo.png'
-import { AiAssistantPanel } from './ai-assistant-panel'
-import { EditorProvider, useEditor } from './editor-context'
-import { ProfilePanel } from './profile-panel'
+import { AiAssistantPanel } from './assistant/ai-assistant-panel'
+import { EditorProvider, useEditor } from './shared/editor-context'
+import { ProfilePanel } from './profile/profile-panel'
 
 type PanelId = 'profile' | 'ai'
 

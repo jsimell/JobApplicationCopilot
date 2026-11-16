@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent, ReactNode } from 'react'
 import { AlertCircle, Pencil, Plus, Trash2 } from 'lucide-react'
 import { cn } from '@/services/utils'
-import { useEditor } from './editor-context'
+import { useEditor } from '../shared/editor-context'
 import { addButtonClassName, Button } from './ui'
 
 type SaveStatus = 'idle' | 'saving' | 'error'

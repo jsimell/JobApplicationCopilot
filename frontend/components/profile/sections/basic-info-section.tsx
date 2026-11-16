@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import { MapPin, Pencil, Plus, Target, UserRound } from 'lucide-react'
 import { EditFooter, UnsavedBadge, saveShortcut, useEntryEditor } from '../entry-editor'
 import { SectionCard } from '../section-card'
-import type { BasicDetails } from '../types'
+import type { BasicDetails } from '../../shared/types'
 import { addButtonClassName, Button, Field, TextArea, TextInput, orNull } from '../ui'
 
 export function BasicInfoSection({ value, onChange }: { value: BasicDetails; onChange: (v: BasicDetails) => void }) {

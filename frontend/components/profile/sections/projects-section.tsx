@@ -5,7 +5,7 @@ import { cn } from '@/services/utils'
 import { EntryList } from '../entry-editor'
 import { SectionCard } from '../section-card'
 import { SkillMultiSelect } from '../skill-multi-select'
-import type { Project, Skill } from '../types'
+import type { Project, Skill } from '../../shared/types'
 import { Field, MonthYearInput, Select, TextArea, TextInput, chipColor, formatMonth, newTempId, orNull } from '../ui'
 
 export function ProjectsSection({

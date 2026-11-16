@@ -6,7 +6,7 @@ import { Check, Loader2, Plus, Sparkles, X } from 'lucide-react'
 import { cn } from '@/services/utils'
 import { ErrorBanner } from '../entry-editor'
 import { SectionCard } from '../section-card'
-import { SKILL_PROFICIENCIES, type Skill } from '../types'
+import { SKILL_PROFICIENCIES, type Skill } from '../../shared/types'
 import { addButtonClassName, Button, TextInput, chipColor, newTempId } from '../ui'
 
 type SyncStatus = 'idle' | 'saving' | 'saved'

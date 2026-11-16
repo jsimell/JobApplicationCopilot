@@ -8,7 +8,7 @@ import type {
 } from 'react'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/services/utils'
-import type { DateValue } from './types'
+import type { DateValue } from '../shared/types'
 
 /* ---------- Buttons ---------- */
 

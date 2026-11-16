@@ -7,7 +7,7 @@ import type {
   Project,
   Skill,
   WorkExperience,
-} from '../components/career/types'
+} from '../components/shared/types'
 
 type ApiDegree = Omit<Degree, 'id'> & { degree_id: number }
 type ApiHobby = Omit<Hobby, 'id'> & { hobby_id: number }
