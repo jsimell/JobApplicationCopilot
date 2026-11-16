@@ -169,7 +169,7 @@ function Panel({
             <CloseIcon className="size-4" aria-hidden="true" />
           </button>
         </div>
-        <div className={cn('min-h-0 flex-1', side === 'right' && 'pt-4 lg:pt-4')}>{children}</div>
+        <div className="min-h-0 flex-1">{children}</div>
       </div>
     </section>
   )
