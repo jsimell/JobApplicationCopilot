@@ -1,0 +1,12 @@
+[flyway]
+locations = ["filesystem:backend/database/migrations"]
+
+[environments.default]
+url = "jdbc:postgresql://localhost:5432/career_profiles_dev"
+user = "career_profile_app"
+password = "${env.FLYWAY_PASSWORD}"
+
+[environments.test]
+url = "jdbc:postgresql://localhost:5432/career_profiles_test"
+user = "career_profile_app"
+password = "${env.FLYWAY_PASSWORD}"
