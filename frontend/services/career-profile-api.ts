@@ -197,11 +197,12 @@ export async function createCurrentCareerProfile(input: CreateProfileInput): Pro
 export async function updateBasicDetails(profileId: number, basicDetails: BasicDetails): Promise<void> {
     const baseUrl = getApiBaseUrl()
     const basicDetailsPath = `/profiles/${profileId}/basic-details`
+    const { profile_id, user_id, ...editableBasicDetails } = basicDetails
     
     await requestJson(baseUrl, basicDetailsPath, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(basicDetails),
+        body: JSON.stringify(editableBasicDetails),
     })
 }
 
