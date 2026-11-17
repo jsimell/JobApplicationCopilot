@@ -3,7 +3,7 @@ from datetime import date
 from decimal import Decimal
 from typing import ClassVar, Literal
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_validator, Field, field_validator
 
 
 class _PatchModel(BaseModel):
@@ -162,3 +162,23 @@ class HobbyResponse(HobbyCreate):
 class ProjectSkill(BaseModel):
     project_id: int
     skill_id: int
+
+
+####################################
+# Application Generation Models
+
+class ApplicationGenerationRequest(BaseModel):
+    job_ad: str = Field(min_length=1, max_length=50_000)
+    user_id: UUID
+
+    @field_validator("job_ad")
+    @classmethod
+    def reject_blank_job_ad(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Job advertisement must not be blank")
+        return value
+
+
+class ApplicationGenerationResponse(BaseModel):
+    application_text: str

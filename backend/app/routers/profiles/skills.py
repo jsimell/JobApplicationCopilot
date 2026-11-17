@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from psycopg.errors import ForeignKeyViolation
 
 from app import database
-from app.dependencies import get_existing_profile
+from app.routers.profiles.dependencies import get_existing_profile
 from app.models import ProfileResponse, Skill, SkillCreate, SkillResponse
 
 router = APIRouter()

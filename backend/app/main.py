@@ -1,10 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import (
+from app.routers.profiles import (
+    degrees,
+    hobbies,
+    languages,
+    profiles,
+    project_skills,
+    projects,
+    skills,
+    users,
     work_experiences,
 )
-from app.routers import degrees, hobbies, languages, profiles, project_skills, projects, skills, users
+
+from app.routers.job_applications import generation
 
 app = FastAPI()
 
@@ -24,6 +33,7 @@ app.include_router(skills.router)
 app.include_router(languages.router)
 app.include_router(hobbies.router)
 app.include_router(project_skills.router)
+app.include_router(generation.router)
 
 
 # Root Endpoint

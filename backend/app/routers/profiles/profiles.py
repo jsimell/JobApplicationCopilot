@@ -3,7 +3,7 @@ from psycopg.errors import ForeignKeyViolation, UniqueViolation
 
 from app import database
 from app.models import Profile, ProfileCreate, ProfileResponse
-from app.dependencies import get_existing_profile
+from app.routers.profiles.dependencies import get_existing_profile
 
 router = APIRouter()
 

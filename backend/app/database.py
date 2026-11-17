@@ -415,6 +415,16 @@ def get_project_skills(project_id: int):
     )
 
 
+def get_project_skills_for_profile(profile_id: int):
+    return execute_query_all("""
+                SELECT project_skills.project_id, project_skills.skill_id
+                FROM project_skills
+                JOIN projects ON projects.project_id = project_skills.project_id
+                WHERE projects.profile_id = %s;
+                """, (profile_id,)
+    )
+
+
 def delete_project_skill(project_id: int, skill_id: int):
     return execute_query("""
                 DELETE FROM project_skills
