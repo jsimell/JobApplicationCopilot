@@ -11,20 +11,22 @@ The core idea is to maintain an all-encompassing career profile containing a per
 The project serves two main purposes:
 
 - **Developing full-stack development skills:** Building on existing frontend development and LLM integration experience while gaining hands-on experience with backend development, REST APIs, relational databases, automated testing, and AI-assisted development.
-- **Improving the job search workflow:** Creating a practical tool for maintaining career information and making the process of preparing job applications more efficient.
+- **Improving and speeding up my job search workflow:** Creating a practical tool for maintaining career information and making the process of preparing job applications more efficient.
 
 ## Tech Stack
 
 - **Backend:** Python, FastAPI, PostgreSQL, Pydantic
 - **Frontend:** React, TypeScript, Next.js
 - **Testing:** pytest, FastAPI TestClient
-- **LLM Features:** OpenAI API (planned)
+- **LLM Features:** OpenAI API
 
 ## Current Status & Next Steps
 
-The FastAPI backend, PostgreSQL database, automated backend tests, and an initial prototype of the Next.js/React frontend are implemented. Profile information can be created, updated, and retrieved through the backend API, and the frontend allows users to view and edit their profile information.
+The backend and frontend are functional, supporting career profile management and the first unoptimized version of LLM-powered job application generation. The backend also includes automated testing, input validation, error handling, and database migrations.
 
 **Next steps:**
-- Improve the design of the profile panel and fix usability issues to move from a prototype to a more polished design.
-- Design the LLM API integration and begin implementing the LLM-powered features.
-- Potentially implement user authentication and authorization as additional backend development practice.
+- Improve the AI-assisted application writing workflow, particularly through iterative conversational refinement and internal system prompt optimization.
+- Introduce additional controls for application generation, such as writing style preferences and selection of relevant career experiences.
+- Implement application session persistence and conversation history.
+- Improve frontend usability, moving from a prototype to a more polished design.
+- Potentially, in the future, implement user authentication and authorization to support public multi-user access, extending my backend skills even further.
