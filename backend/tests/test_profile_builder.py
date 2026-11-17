@@ -1,19 +1,17 @@
 from datetime import date
 from decimal import Decimal
-from uuid import uuid4
 
 from app import database
-from app.services.profile_context import get_profile_context
+from app.services.profile_builder import get_profile_object
 
 
-def test_get_profile_context_assembles_profile_and_related_records(monkeypatch):
-    user_id = uuid4()
+def test_get_profile_object_assembles_profile_and_related_records(monkeypatch):
+    profile_id = 7
     monkeypatch.setattr(
         database,
-        "get_profile_by_user_id",
-        lambda requested_user_id: {
-            "profile_id": 7,
-            "user_id": requested_user_id,
+        "get_basic_details",
+        lambda requested_profile_id: {
+            "profile_id": requested_profile_id,
             "full_name": "Avery Example",
             "headline": "Software Engineer",
             "location": "Remote",
@@ -78,9 +76,10 @@ def test_get_profile_context_assembles_profile_and_related_records(monkeypatch):
     monkeypatch.setattr(database, "get_languages", lambda profile_id: [])
     monkeypatch.setattr(database, "get_hobbies", lambda profile_id: [])
 
-    context = get_profile_context(user_id)
+    context = get_profile_object(profile_id)
 
     assert context == {
+        "profile_id": profile_id,
         "full_name": "Avery Example",
         "headline": "Software Engineer",
         "location": "Remote",
@@ -112,7 +111,7 @@ def test_get_profile_context_assembles_profile_and_related_records(monkeypatch):
     }
 
 
-def test_get_profile_context_returns_none_for_unknown_user(monkeypatch):
-    monkeypatch.setattr(database, "get_profile_by_user_id", lambda user_id: None)
+def test_get_profile_object_returns_none_for_unknown_profile(monkeypatch):
+    monkeypatch.setattr(database, "get_basic_details", lambda profile_id: None)
 
-    assert get_profile_context(uuid4()) is None
+    assert get_profile_object(999) is None

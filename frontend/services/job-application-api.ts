@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from './api-config'
+
 export interface GenerateJobApplicationRequest {
   jobAdvertisement: string
 }
@@ -17,19 +19,73 @@ export interface ApplicationSession {
   application: GeneratedApplication
 }
 
+interface BasicDetailsResponse {
+  profile_id: number
+}
+
+interface ApiGenerationResponse {
+  application_text: string
+}
+
+interface ApiErrorResponse {
+  detail?: string
+}
+
+const USER_ID_STORAGE_KEY = 'career-profile-user-id'
+
+async function getProfileId(baseUrl: string): Promise<number> {
+  const userId = window.localStorage.getItem(USER_ID_STORAGE_KEY)
+  if (!userId) {
+    throw new Error('Could not find the current user. Please reload and try again.')
+  }
+
+  const response = await fetch(
+    `${baseUrl}/users/${encodeURIComponent(userId)}/profile`,
+    { cache: 'no-store' },
+  )
+  if (!response.ok) {
+    throw new Error(
+      response.status === 404
+        ? 'Create a profile before generating an application.'
+        : `Could not load your profile (${response.status}).`,
+    )
+  }
+
+  const basicDetails = (await response.json()) as BasicDetailsResponse
+  return basicDetails.profile_id
+}
+
 export async function generateJobApplication(
   request: GenerateJobApplicationRequest,
 ): Promise<GenerateJobApplicationResponse> {
-  if (!request.jobAdvertisement.trim()) {
+  const jobAdvertisement = request.jobAdvertisement.trim()
+  if (!jobAdvertisement) {
     throw new Error('A job advertisement is required to generate an application.')
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 900))
+  const baseUrl = getApiBaseUrl()
+  const profileId = await getProfileId(baseUrl)
+  const response = await fetch(`${baseUrl}/applications/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    cache: 'no-store',
+    body: JSON.stringify({
+      profile_id: profileId,
+      job_ad: jobAdvertisement,
+    }),
+  })
 
-  return {
-    application: {
-      id: `mock-application-${Date.now()}`,
-      text: `Dear Hiring Team,\n\nI am excited to apply for this opportunity. My experience and skills align well with the needs described in your job advertisement, and I would welcome the chance to contribute to your team.\n\nThroughout my career, I have developed a strong record of delivering thoughtful, reliable work, collaborating across teams, and adapting quickly to new challenges. I am particularly drawn to this role because it offers the opportunity to make a meaningful impact while continuing to grow professionally.\n\nI would be pleased to discuss how my background could support your organization. Thank you for your time and consideration.\n\nSincerely,\nElena Marković`,
-    },
+  if (!response.ok) {
+    const errorBody = (await response.json().catch(() => null)) as ApiErrorResponse | null
+    throw new Error(
+      errorBody?.detail ?? `Application generation failed (${response.status}).`,
+    )
   }
+
+  const result = (await response.json()) as ApiGenerationResponse
+  const application = {
+    id: crypto.randomUUID(),
+    text: result.application_text,
+  }
+  return { application }
 }

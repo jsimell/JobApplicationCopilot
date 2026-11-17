@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, HTTPException
 
 from app import database
-from app.models import ProfileResponse
+from app.models import BasicDetailsResponse
 
 router = APIRouter()
 
@@ -17,12 +17,12 @@ def create_user():
     return {"user_id": user_id}
 
 
-@router.get("/users/{user_id}/profile", response_model=ProfileResponse)
+@router.get("/users/{user_id}/profile", response_model=BasicDetailsResponse)
 def get_user_profile(user_id: UUID):
-    profile = database.get_profile_by_user_id(user_id)
-    if profile is None:
+    basic_details = database.get_basic_details_by_user_id(user_id)
+    if basic_details is None:
         raise HTTPException(status_code=404, detail="Profile not found")
-    return profile
+    return basic_details
 
 
 @router.get("/users", status_code=200)  # For testing

@@ -5,14 +5,14 @@ from app.models import (
     ApplicationGenerationResponse,
 )
 from app.services import application_generator
-from app.services.profile_context import get_profile_context
+from app.services.profile_builder import get_profile_object
 
 router = APIRouter()
 
 
 @router.post("/applications/generate", response_model=ApplicationGenerationResponse)
 def generate_application(request: ApplicationGenerationRequest):
-    profile_context = get_profile_context(request.user_id)
+    profile_context = get_profile_object(request.profile_id)
     if profile_context is None:
         raise HTTPException(status_code=404, detail="Profile not found")
 

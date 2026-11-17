@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from psycopg.errors import ForeignKeyViolation
 
 from app import database
-from app.routers.profiles.dependencies import get_existing_profile
-from app.models import ProfileResponse, Skill, SkillCreate, SkillResponse
+from app.routers.profiles.dependencies import get_existing_basic_details
+from app.models import BasicDetailsResponse, Skill, SkillCreate, SkillResponse
 
 router = APIRouter()
 
@@ -30,8 +30,10 @@ def create_skill(profile_id: int, skill: SkillCreate):
     "/profiles/{profile_id}/skills",
     response_model=list[SkillResponse],
 )
-def get_skills(profile: ProfileResponse = Depends(get_existing_profile)):
-    return database.get_skills(profile.profile_id)
+def get_skills(
+    basic_details: BasicDetailsResponse = Depends(get_existing_basic_details),
+):
+    return database.get_skills(basic_details.profile_id)
 
 
 @router.patch("/skills/{skill_id}", response_model=SkillResponse)

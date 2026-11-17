@@ -471,35 +471,78 @@ def test_profile_create_rejects_missing_or_null_required_fields(
             "/profiles", json=null_field_payload).status_code == 422
 
 
-def test_2_2_1_get_profiles_when_none_exist(client: TestClient) -> None:
-    response = client.get("/profiles")
-    assert response.status_code == 200
-    assert response.json() == []
-
-
 def test_2_2_2_get_existing_profile_by_id(
     client: TestClient, profile: dict[str, Any]
 ) -> None:
     response = client.get(f"/profiles/{profile['profile_id']}")
     assert response.status_code == 200
+    data = response.json()
+    assert data == {
+        "profile_id": profile["profile_id"],
+        "full_name": profile["full_name"],
+        "headline": profile["headline"],
+        "location": profile["location"],
+        "summary": profile["summary"],
+        "career_goals_description": profile["career_goals_description"],
+        "work_experiences": [],
+        "degrees": [],
+        "projects": [],
+        "skills": [],
+        "languages": [],
+        "hobbies": [],
+    }
+
+
+def test_get_profile_object_includes_associated_data(
+    client: TestClient,
+    profile: dict[str, Any],
+    child_factory: Callable[..., dict[str, Any]],
+) -> None:
+    children = {
+        resource["name"]: child_factory(resource, profile["profile_id"])
+        for resource in RESOURCE_BY_NAME.values()
+    }
+    project = children["projects"]
+    skill = children["skills"]
+    association_path = (
+        f"/projects/{project['project_id']}/skills/{skill['skill_id']}"
+    )
+    assert client.post(association_path).status_code == 201
+
+    response = client.get(f"/profiles/{profile['profile_id']}")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["profile_id"] == profile["profile_id"]
+    assert data["work_experiences"][0]["title"] == children["work_experiences"]["title"]
+    assert data["degrees"][0]["title"] == children["degrees"]["title"]
+    assert data["projects"][0]["title"] == project["title"]
+    assert data["projects"][0]["skills"] == [
+        {"name": skill["name"], "proficiency": skill["proficiency"]}
+    ]
+    assert data["skills"][0]["name"] == skill["name"]
+    assert data["languages"][0]["language"] == children["languages"]["language"]
+    assert data["hobbies"][0]["name"] == children["hobbies"]["name"]
+
+
+def test_get_existing_profile_basic_details(
+    client: TestClient, profile: dict[str, Any]
+) -> None:
+    response = client.get(
+        f"/profiles/{profile['profile_id']}/basic-details"
+    )
+    assert response.status_code == 200
     assert response.json() == profile
+
+
+def test_get_nonexistent_profile_basic_details(client: TestClient) -> None:
+    response = client.get("/profiles/2147483647/basic-details")
+    assert response.status_code == 404
 
 
 def test_2_2_3_get_nonexistent_profile(client: TestClient) -> None:
     response = client.get("/profiles/2147483647")
     assert response.status_code == 404
-
-
-def test_2_2_4_get_all_profiles_after_creating_two(
-    client: TestClient, profile_factory: Callable[..., dict[str, Any]]
-) -> None:
-    first = profile_factory()
-    second = profile_factory()
-    response = client.get("/profiles")
-    assert response.status_code == 200
-    returned = {item["profile_id"]: item for item in response.json()}
-    assert returned[first["profile_id"]] == first
-    assert returned[second["profile_id"]] == second
 
 
 def test_2_2_5_different_users_have_distinct_profiles(
@@ -515,7 +558,7 @@ def test_2_3_1_2_patch_one_profile_field_and_preserve_omitted_fields(
     client: TestClient, profile: dict[str, Any]
 ) -> None:
     response = client.patch(
-        f"/profiles/{profile['profile_id']}",
+        f"/profiles/{profile['profile_id']}/basic-details",
         json={"headline": "Updated headline"},
     )
     assert response.status_code == 200
@@ -528,7 +571,9 @@ def test_2_3_3_patch_multiple_profile_fields(
     client: TestClient, profile: dict[str, Any]
 ) -> None:
     changes = {"headline": "New headline", "location": "Paris"}
-    response = client.patch(f"/profiles/{profile['profile_id']}", json=changes)
+    response = client.patch(
+        f"/profiles/{profile['profile_id']}/basic-details", json=changes
+    )
     assert response.status_code == 200
     assert all(response.json()[field] ==
                value for field, value in changes.items())
@@ -538,7 +583,8 @@ def test_2_3_4_explicit_null_optional_profile_field_is_stored_as_null(
     client: TestClient, profile: dict[str, Any]
 ) -> None:
     response = client.patch(
-        f"/profiles/{profile['profile_id']}", json={"location": None}
+        f"/profiles/{profile['profile_id']}/basic-details",
+        json={"location": None},
     )
     assert response.status_code == 200
     assert response.json()["location"] is None
@@ -554,7 +600,8 @@ def test_patch_profile_rejects_null_required_fields(
 ) -> None:
     for field in ("full_name", "headline"):
         response = client.patch(
-            f"/profiles/{profile['profile_id']}", json={field: None}
+            f"/profiles/{profile['profile_id']}/basic-details",
+            json={field: None},
         )
         assert response.status_code == 422
 
@@ -563,7 +610,8 @@ def test_2_3_5_empty_string_profile_field_is_stored(
     client: TestClient, profile: dict[str, Any]
 ) -> None:
     response = client.patch(
-        f"/profiles/{profile['profile_id']}", json={"headline": ""}
+        f"/profiles/{profile['profile_id']}/basic-details",
+        json={"headline": ""},
     )
     assert response.status_code == 200
     assert response.json()["headline"] == ""
@@ -577,13 +625,17 @@ def test_2_3_5_empty_string_profile_field_is_stored(
 def test_2_3_6_empty_profile_patch_returns_bad_request(
     client: TestClient, profile: dict[str, Any]
 ) -> None:
-    response = client.patch(f"/profiles/{profile['profile_id']}", json={})
+    response = client.patch(
+        f"/profiles/{profile['profile_id']}/basic-details", json={}
+    )
     assert response.status_code == 400
 
 
 def test_2_3_7_patch_nonexistent_profile(client: TestClient) -> None:
-    response = client.patch("/profiles/2147483647",
-                            json={"headline": "Missing"})
+    response = client.patch(
+        "/profiles/2147483647/basic-details",
+        json={"headline": "Missing"},
+    )
     assert response.status_code == 404
 
 
@@ -591,7 +643,7 @@ def test_2_3_8_patch_profile_with_invalid_field_type(
     client: TestClient, profile: dict[str, Any]
 ) -> None:
     response = client.patch(
-        f"/profiles/{profile['profile_id']}",
+        f"/profiles/{profile['profile_id']}/basic-details",
         json={"headline": ["invalid"]},
     )
     assert response.status_code == 422

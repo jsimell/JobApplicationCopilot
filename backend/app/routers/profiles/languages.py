@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from psycopg.errors import ForeignKeyViolation
 
 from app import database
-from app.routers.profiles.dependencies import get_existing_profile
-from app.models import Language, LanguageCreate, LanguageResponse, ProfileResponse
+from app.routers.profiles.dependencies import get_existing_basic_details
+from app.models import BasicDetailsResponse, Language, LanguageCreate, LanguageResponse
 
 router = APIRouter()
 
@@ -30,8 +30,10 @@ def create_language(profile_id: int, language: LanguageCreate):
     "/profiles/{profile_id}/languages",
     response_model=list[LanguageResponse],
 )
-def get_languages(profile: ProfileResponse = Depends(get_existing_profile)):
-    return database.get_languages(profile.profile_id)
+def get_languages(
+    basic_details: BasicDetailsResponse = Depends(get_existing_basic_details),
+):
+    return database.get_languages(basic_details.profile_id)
 
 
 @router.patch("/languages/{language_id}", response_model=LanguageResponse)

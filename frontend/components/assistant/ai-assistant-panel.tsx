@@ -176,7 +176,7 @@ function ApplicationWorkspace({
       </Button>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 2xl:grid-cols-2 2xl:overflow-hidden">
-        <section className="flex min-h-[30rem] min-w-0 flex-col rounded-xl border bg-card p-4 2xl:min-h-0">
+        <section className="flex min-h-120 min-w-0 flex-col rounded-xl border bg-card p-4 2xl:min-h-0">
           <div className="mb-3">
             <h2 className="text-sm font-semibold text-foreground">Application editor</h2>
             <p className="mt-1 text-xs text-muted-foreground">Edit your draft before exporting it.</p>
@@ -206,7 +206,7 @@ function ApplicationWorkspace({
 
 function ApplicationChat({ messages }: { messages: ChatMessage[] }) {
   return (
-    <section className="flex min-h-[24rem] min-w-0 flex-col overflow-hidden rounded-xl border bg-card 2xl:min-h-0">
+    <section className="flex min-h-96 min-w-0 flex-col overflow-hidden rounded-xl border bg-card 2xl:min-h-0">
       <div className="shrink-0 border-b px-4 py-3">
         <h2 className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
           <Bot className="size-4 text-primary" aria-hidden="true" />

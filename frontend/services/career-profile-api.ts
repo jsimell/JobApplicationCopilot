@@ -8,6 +8,7 @@ import type {
   Skill,
   WorkExperience,
 } from '../components/shared/types'
+import { getApiBaseUrl } from './api-config'
 
 type ApiDegree = Omit<Degree, 'id'> & { degree_id: number }
 type ApiHobby = Omit<Hobby, 'id'> & { hobby_id: number }
@@ -40,15 +41,6 @@ class ApiError extends Error {
     super(message)
     this.name = 'ApiError'
   }
-}
-
-// Returns the base URL without a trailing slash 'https://example.com/api' or throws if not configured.
-function getApiBaseUrl() {
-  const configuredBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
-  if (!configuredBaseUrl) {
-    throw new Error('NEXT_PUBLIC_API_BASE_URL must be set to load a career profile.')
-  }
-  return configuredBaseUrl.replace(/\/+$/, '')
 }
 
 async function requestJson<T>(
@@ -101,7 +93,10 @@ async function getProfileForUser(baseUrl: string, userId: string) {
 export async function fetchCareerProfile(profileId: number): Promise<CareerProfile> {
   const baseUrl = getApiBaseUrl()
   const profilePath = `/profiles/${profileId}`
-  const apiBasicDetails = await getJson<ApiBasicDetails>(baseUrl, profilePath)
+  const apiBasicDetails = await getJson<ApiBasicDetails>(
+    baseUrl,
+    `${profilePath}/basic-details`,
+  )
   const basicDetails: BasicDetails = {
     ...apiBasicDetails,
     full_name: apiBasicDetails.full_name ?? '',
@@ -201,9 +196,9 @@ export async function createCurrentCareerProfile(input: CreateProfileInput): Pro
 
 export async function updateBasicDetails(profileId: number, basicDetails: BasicDetails): Promise<void> {
     const baseUrl = getApiBaseUrl()
-    const profilePath = `/profiles/${profileId}`
+    const basicDetailsPath = `/profiles/${profileId}/basic-details`
     
-    await requestJson(baseUrl, profilePath, {
+    await requestJson(baseUrl, basicDetailsPath, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(basicDetails),

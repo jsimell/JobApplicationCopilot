@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from psycopg.errors import ForeignKeyViolation
 
 from app import database
-from app.routers.profiles.dependencies import get_existing_profile
-from app.models import Degree, DegreeCreate, DegreeResponse, ProfileResponse
+from app.routers.profiles.dependencies import get_existing_basic_details
+from app.models import BasicDetailsResponse, Degree, DegreeCreate, DegreeResponse
 
 router = APIRouter()
 
@@ -30,8 +30,10 @@ def create_degree(profile_id: int, degree: DegreeCreate):
     "/profiles/{profile_id}/degrees",
     response_model=list[DegreeResponse],
 )
-def get_degrees(profile: ProfileResponse = Depends(get_existing_profile)):
-    return database.get_degrees(profile.profile_id)
+def get_degrees(
+    basic_details: BasicDetailsResponse = Depends(get_existing_basic_details),
+):
+    return database.get_degrees(basic_details.profile_id)
 
 
 @router.patch("/degrees/{degree_id}", response_model=DegreeResponse)

@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from fastapi.encoders import jsonable_encoder
 
 from app import database
@@ -13,12 +11,11 @@ def _without_database_ids(record: dict) -> dict:
     }
 
 
-def get_profile_context(user_id: UUID) -> dict | None:
-    profile = database.get_profile_by_user_id(user_id)
+def get_profile_object(profile_id: int) -> dict | None:
+    profile = database.get_basic_details(profile_id)
     if profile is None:
         return None
 
-    profile_id = profile["profile_id"]
     skills = database.get_skills(profile_id)
     skills_by_id = {skill["skill_id"]: skill for skill in skills}
 
@@ -32,6 +29,7 @@ def get_profile_context(user_id: UUID) -> dict | None:
 
     context = {
         **_without_database_ids(profile),
+        "profile_id": profile_id,
         "work_experiences": [
             _without_database_ids(item)
             for item in database.get_work_experiences(profile_id)

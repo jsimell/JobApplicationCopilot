@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from psycopg.errors import ForeignKeyViolation
 
 from app import database
-from app.routers.profiles.dependencies import get_existing_profile
-from app.models import Hobby, HobbyCreate, HobbyResponse, ProfileResponse
+from app.routers.profiles.dependencies import get_existing_basic_details
+from app.models import BasicDetailsResponse, Hobby, HobbyCreate, HobbyResponse
 
 router = APIRouter()
 
@@ -30,8 +30,10 @@ def create_hobby(profile_id: int, hobby: HobbyCreate):
     "/profiles/{profile_id}/hobbies",
     response_model=list[HobbyResponse],
 )
-def get_hobbies(profile: ProfileResponse = Depends(get_existing_profile)):
-    return database.get_hobbies(profile.profile_id)
+def get_hobbies(
+    basic_details: BasicDetailsResponse = Depends(get_existing_basic_details),
+):
+    return database.get_hobbies(basic_details.profile_id)
 
 
 @router.patch("/hobbies/{hobby_id}", response_model=HobbyResponse)

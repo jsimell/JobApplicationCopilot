@@ -2,15 +2,15 @@ from fastapi import APIRouter, HTTPException
 from psycopg.errors import ForeignKeyViolation, UniqueViolation
 
 from app import database
-from app.models import Profile, ProfileCreate, ProfileResponse
-from app.routers.profiles.dependencies import get_existing_profile
+from app.models import BasicDetailsResponse, BasicDetailsUpdate, ProfileCreate
+from app.routers.profiles.dependencies import get_existing_basic_details
+from app.services.profile_builder import get_profile_object
 
 router = APIRouter()
 
-# Profile Endpoints
 
-
-@router.post("/profiles", status_code=201, response_model=ProfileResponse)
+# Profile creation
+@router.post("/profiles", status_code=201, response_model=BasicDetailsResponse)
 def create_profile(profile: ProfileCreate):
     try:
         return database.create_profile(
@@ -28,34 +28,46 @@ def create_profile(profile: ProfileCreate):
         )
 
 
-@router.get("/profiles/{profile_id}", response_model=ProfileResponse)
-def read_profile(profile_id: int):
-    return get_existing_profile(profile_id)
-
-
-@router.get("/profiles", response_model=list[ProfileResponse])
-def read_profiles():
-    return database.get_profiles()
-
-
-@router.patch("/profiles/{profile_id}", response_model=ProfileResponse)
-def update_profile(profile_id: int, profile: Profile):
-    fields = profile.model_dump(exclude_unset=True)
-
-    if not fields:
-        raise HTTPException(400, "No fields provided for update")
-
-    updated = database.update_profile(profile_id, **fields)
-
-    if updated is None:
-        raise HTTPException(status_code=404, detail="Profile not found")
-
-    return updated
-
-
+# Profile deletion
 @router.delete("/profiles/{profile_id}", status_code=204)
 def delete_profile(profile_id: int):
     deleted = database.delete_profile(profile_id)
 
     if deleted is None:
         raise HTTPException(status_code=404, detail="Profile not found")
+
+
+# Fetching entire profile data
+@router.get("/profiles/{profile_id}")
+def read_profile(profile_id: int):
+    profile_object = get_profile_object(profile_id)
+    if profile_object is None:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profile_object
+
+
+# Endpoints for reading and updating profile basic details
+@router.get(
+    "/profiles/{profile_id}/basic-details",
+    response_model=BasicDetailsResponse,
+)
+def read_basic_details(profile_id: int):
+    return get_existing_basic_details(profile_id)
+
+
+@router.patch(
+    "/profiles/{profile_id}/basic-details",
+    response_model=BasicDetailsResponse,
+)
+def update_basic_details(profile_id: int, basic_details: BasicDetailsUpdate):
+    fields = basic_details.model_dump(exclude_unset=True)
+
+    if not fields:
+        raise HTTPException(400, "No fields provided for update")
+
+    updated = database.update_basic_details(profile_id, **fields)
+
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    return updated

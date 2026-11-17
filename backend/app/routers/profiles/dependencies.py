@@ -1,16 +1,16 @@
 from fastapi import HTTPException
 
 from app import database
-from app.models import ProfileResponse
+from app.models import BasicDetailsResponse
 
 
-def get_existing_profile(profile_id: int):
-    profile = database.get_profile(profile_id)
+def get_existing_basic_details(profile_id: int) -> BasicDetailsResponse:
+    basic_details = database.get_basic_details(profile_id)
 
-    if profile is None:
+    if basic_details is None:
         raise HTTPException(
             status_code=404,
             detail="Profile not found"
         )
 
-    return ProfileResponse.model_validate(profile)
+    return BasicDetailsResponse.model_validate(basic_details)

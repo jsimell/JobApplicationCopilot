@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from psycopg.errors import ForeignKeyViolation
 
 from app import database
-from app.routers.profiles.dependencies import get_existing_profile
+from app.routers.profiles.dependencies import get_existing_basic_details
 from app.models import (
-    ProfileResponse,
+    BasicDetailsResponse,
     WorkExperience,
     WorkExperienceCreate,
     WorkExperienceResponse,
@@ -35,8 +35,10 @@ def add_work_experience(profile_id: int, work_experience: WorkExperienceCreate):
     "/profiles/{profile_id}/work_experiences",
     response_model=list[WorkExperienceResponse],
 )
-def get_work_experiences(profile: ProfileResponse = Depends(get_existing_profile)):
-    return database.get_work_experiences(profile.profile_id)
+def get_work_experiences(
+    basic_details: BasicDetailsResponse = Depends(get_existing_basic_details),
+):
+    return database.get_work_experiences(basic_details.profile_id)
 
 
 @router.patch(

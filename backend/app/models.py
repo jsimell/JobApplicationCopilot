@@ -18,7 +18,7 @@ class _PatchModel(BaseModel):
 
 
 # Profile Models
-class Profile(_PatchModel):
+class BasicDetailsUpdate(_PatchModel):
     _non_nullable_fields = ("full_name", "headline")
 
     full_name: str | None = None
@@ -28,13 +28,13 @@ class Profile(_PatchModel):
     career_goals_description: str | None = None
 
 
-class ProfileCreate(Profile):
+class ProfileCreate(BasicDetailsUpdate):
     full_name: str
     headline: str
     user_id: UUID
 
 
-class ProfileResponse(ProfileCreate):
+class BasicDetailsResponse(ProfileCreate):
     profile_id: int
 
 
@@ -169,7 +169,7 @@ class ProjectSkill(BaseModel):
 
 class ApplicationGenerationRequest(BaseModel):
     job_ad: str = Field(min_length=1, max_length=50_000)
-    user_id: UUID
+    profile_id: int
 
     @field_validator("job_ad")
     @classmethod

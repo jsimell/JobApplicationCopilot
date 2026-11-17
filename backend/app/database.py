@@ -60,21 +60,15 @@ def create_profile(
     )
 
 
-def get_profile(profile_id: int):
+def get_basic_details(profile_id: int):
     return execute_query(
         """SELECT * FROM profiles WHERE profile_id = %s;""", (profile_id,)
     )
 
 
-def get_profile_by_user_id(user_id: UUID):
+def get_basic_details_by_user_id(user_id: UUID):
     return execute_query(
         """SELECT * FROM profiles WHERE user_id = %s;""", (user_id,)
-    )
-
-
-def get_profiles():
-    return execute_query_all(
-        """SELECT * FROM profiles;""", ()
     )
 
 
@@ -85,9 +79,9 @@ def delete_profile(profile_id: int):
     )
 
 
-def update_profile(profile_id: int, **fields):
+def update_basic_details(profile_id: int, **fields):
     if not fields:
-        return get_profile(profile_id)
+        return get_basic_details(profile_id)
 
     assignments = sql.SQL(", ").join(
         sql.SQL("{} = %s").format(sql.Identifier(column))
