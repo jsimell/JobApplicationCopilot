@@ -3,6 +3,7 @@ from psycopg.errors import UniqueViolation
 
 from app import database
 from app.models import ProjectSkill
+from app.routers.profiles.dependencies import PositivePathId
 
 router = APIRouter()
 
@@ -12,7 +13,10 @@ router = APIRouter()
     status_code=201,
     response_model=ProjectSkill,
 )
-def create_project_skill(project_id: int, skill_id: int):
+def create_project_skill(
+    project_id: PositivePathId,
+    skill_id: PositivePathId,
+):
     try:
         created = database.create_project_skill(project_id, skill_id)
 
@@ -36,7 +40,7 @@ def create_project_skill(project_id: int, skill_id: int):
     status_code=200,
     response_model=list[ProjectSkill],
 )
-def get_project_skills(project_id: int):
+def get_project_skills(project_id: PositivePathId):
 
     if database.get_project(project_id) is None:
         raise HTTPException(
@@ -51,7 +55,10 @@ def get_project_skills(project_id: int):
     "/projects/{project_id}/skills/{skill_id}",
     status_code=204,
 )
-def delete_project_skill(project_id: int, skill_id: int):
+def delete_project_skill(
+    project_id: PositivePathId,
+    skill_id: PositivePathId,
+):
     deleted = database.delete_project_skill(project_id, skill_id)
 
     if deleted is None:

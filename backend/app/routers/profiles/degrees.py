@@ -2,7 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from psycopg.errors import ForeignKeyViolation
 
 from app import database
-from app.routers.profiles.dependencies import get_existing_basic_details
+from app.routers.profiles.dependencies import (
+    PositivePathId,
+    get_existing_basic_details,
+)
 from app.models import BasicDetailsResponse, Degree, DegreeCreate, DegreeResponse
 
 router = APIRouter()
@@ -13,7 +16,10 @@ router = APIRouter()
     status_code=201,
     response_model=DegreeResponse,
 )
-def create_degree(profile_id: int, degree: DegreeCreate):
+def create_degree(
+    profile_id: PositivePathId,
+    degree: DegreeCreate,
+):
     try:
         return database.create_degree(
             profile_id,
@@ -37,13 +43,11 @@ def get_degrees(
 
 
 @router.patch("/degrees/{degree_id}", response_model=DegreeResponse)
-def update_degree(degree_id: int, degree: Degree):
+def update_degree(
+    degree_id: PositivePathId,
+    degree: Degree,
+):
     fields = degree.model_dump(exclude_unset=True)
-    if not fields:
-        raise HTTPException(
-            status_code=400,
-            detail="No fields provided for update"
-        )
     updated = database.update_degree(degree_id, **fields)
     if updated is None:
         raise HTTPException(
@@ -52,7 +56,7 @@ def update_degree(degree_id: int, degree: Degree):
 
 
 @router.delete("/degrees/{degree_id}", status_code=204)
-def delete_degree(degree_id: int):
+def delete_degree(degree_id: PositivePathId):
     deleted = database.delete_degree(degree_id)
     if deleted is None:
         raise HTTPException(

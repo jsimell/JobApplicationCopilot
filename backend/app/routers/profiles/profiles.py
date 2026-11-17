@@ -3,7 +3,10 @@ from psycopg.errors import ForeignKeyViolation, UniqueViolation
 
 from app import database
 from app.models import BasicDetailsResponse, BasicDetailsUpdate, ProfileCreate
-from app.routers.profiles.dependencies import get_existing_basic_details
+from app.routers.profiles.dependencies import (
+    PositivePathId,
+    get_existing_basic_details,
+)
 from app.services.profile_builder import get_profile_object
 
 router = APIRouter()
@@ -30,7 +33,7 @@ def create_profile(profile: ProfileCreate):
 
 # Profile deletion
 @router.delete("/profiles/{profile_id}", status_code=204)
-def delete_profile(profile_id: int):
+def delete_profile(profile_id: PositivePathId):
     deleted = database.delete_profile(profile_id)
 
     if deleted is None:
@@ -39,7 +42,7 @@ def delete_profile(profile_id: int):
 
 # Fetching entire profile data
 @router.get("/profiles/{profile_id}")
-def read_profile(profile_id: int):
+def read_profile(profile_id: PositivePathId):
     profile_object = get_profile_object(profile_id)
     if profile_object is None:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -51,7 +54,7 @@ def read_profile(profile_id: int):
     "/profiles/{profile_id}/basic-details",
     response_model=BasicDetailsResponse,
 )
-def read_basic_details(profile_id: int):
+def read_basic_details(profile_id: PositivePathId):
     return get_existing_basic_details(profile_id)
 
 
@@ -59,11 +62,11 @@ def read_basic_details(profile_id: int):
     "/profiles/{profile_id}/basic-details",
     response_model=BasicDetailsResponse,
 )
-def update_basic_details(profile_id: int, basic_details: BasicDetailsUpdate):
+def update_basic_details(
+    profile_id: PositivePathId,
+    basic_details: BasicDetailsUpdate,
+):
     fields = basic_details.model_dump(exclude_unset=True)
-
-    if not fields:
-        raise HTTPException(400, "No fields provided for update")
 
     updated = database.update_basic_details(profile_id, **fields)
 

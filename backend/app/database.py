@@ -124,6 +124,13 @@ def get_work_experiences(profile_id: int):
     )
 
 
+def get_work_experience(work_experience_id: int):
+    return execute_query(
+        """SELECT * FROM work_experiences WHERE work_experience_id = %s;""",
+        (work_experience_id,),
+    )
+
+
 def delete_work_experience(work_experience_id: int):
     return execute_query(
         """DELETE FROM work_experiences WHERE work_experience_id = %s

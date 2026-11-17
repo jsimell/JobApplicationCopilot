@@ -117,3 +117,39 @@ def test_generate_application_returns_not_found_without_calling_provider(
 
     assert response.status_code == 404
     generate.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"profile_id": 3},
+        {"profile_id": 3, "job_ad": " \t\n "},
+        {"profile_id": 3, "job_ad": "x" * 50_001},
+        {"profile_id": 0, "job_ad": "Data scientist role"},
+        {"profile_id": "not-an-integer", "job_ad": "Data scientist role"},
+        {
+            "profile_id": 3,
+            "job_ad": "Data scientist role",
+            "unexpected": "value",
+        },
+    ],
+)
+def test_invalid_generation_requests_do_not_load_profile_or_call_provider(
+    client,
+    monkeypatch,
+    payload,
+):
+    load_profile = Mock()
+    generate = Mock()
+    monkeypatch.setattr(generation, "get_profile_object", load_profile)
+    monkeypatch.setattr(
+        application_generator,
+        "generate_job_application",
+        generate,
+    )
+
+    response = client.post("/applications/generate", json=payload)
+
+    assert response.status_code == 422
+    load_profile.assert_not_called()
+    generate.assert_not_called()

@@ -2,7 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from psycopg.errors import ForeignKeyViolation
 
 from app import database
-from app.routers.profiles.dependencies import get_existing_basic_details
+from app.routers.profiles.dependencies import (
+    PositivePathId,
+    get_existing_basic_details,
+)
 from app.models import BasicDetailsResponse, Language, LanguageCreate, LanguageResponse
 
 router = APIRouter()
@@ -13,7 +16,10 @@ router = APIRouter()
     status_code=201,
     response_model=LanguageResponse,
 )
-def create_language(profile_id: int, language: LanguageCreate):
+def create_language(
+    profile_id: PositivePathId,
+    language: LanguageCreate,
+):
     try:
         return database.create_language(
             profile_id,
@@ -37,13 +43,11 @@ def get_languages(
 
 
 @router.patch("/languages/{language_id}", response_model=LanguageResponse)
-def update_language(language_id: int, language: Language):
+def update_language(
+    language_id: PositivePathId,
+    language: Language,
+):
     fields = language.model_dump(exclude_unset=True)
-    if not fields:
-        raise HTTPException(
-            status_code=400,
-            detail="No fields provided for update"
-        )
     updated = database.update_language(language_id, **fields)
     if updated is None:
         raise HTTPException(
@@ -52,7 +56,7 @@ def update_language(language_id: int, language: Language):
 
 
 @router.delete("/languages/{language_id}", status_code=204)
-def delete_language(language_id: int):
+def delete_language(language_id: PositivePathId):
     deleted = database.delete_language(language_id)
     if deleted is None:
         raise HTTPException(

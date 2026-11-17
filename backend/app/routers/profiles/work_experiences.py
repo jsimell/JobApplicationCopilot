@@ -2,7 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from psycopg.errors import ForeignKeyViolation
 
 from app import database
-from app.routers.profiles.dependencies import get_existing_basic_details
+from app.routers.profiles.dependencies import (
+    PositivePathId,
+    get_existing_basic_details,
+)
 from app.models import (
     BasicDetailsResponse,
     WorkExperience,
@@ -18,7 +21,10 @@ router = APIRouter()
     status_code=201,
     response_model=WorkExperienceResponse,
 )
-def add_work_experience(profile_id: int, work_experience: WorkExperienceCreate):
+def add_work_experience(
+    profile_id: PositivePathId,
+    work_experience: WorkExperienceCreate,
+):
     try:
         return database.create_work_experience(
             profile_id,
@@ -45,13 +51,24 @@ def get_work_experiences(
     "/work_experiences/{work_experience_id}",
     response_model=WorkExperienceResponse,
 )
-def update_work_experience(work_experience_id: int, work_experience: WorkExperience):
+def update_work_experience(
+    work_experience_id: PositivePathId,
+    work_experience: WorkExperience,
+):
     fields = work_experience.model_dump(exclude_unset=True)
-    if not fields:
+    existing = database.get_work_experience(work_experience_id)
+    if existing is None:
         raise HTTPException(
-            status_code=400,
-            detail="No fields provided for update"
+            status_code=404, detail="Work experience not found")
+
+    start_date = fields.get("start_date", existing["start_date"])
+    end_date = fields.get("end_date", existing["end_date"])
+    if end_date is not None and end_date < start_date:
+        raise HTTPException(
+            status_code=422,
+            detail="end_date must be on or after start_date",
         )
+
     updated = database.update_work_experience(work_experience_id, **fields)
     if updated is None:
         raise HTTPException(
@@ -60,7 +77,7 @@ def update_work_experience(work_experience_id: int, work_experience: WorkExperie
 
 
 @router.delete("/work_experiences/{work_experience_id}", status_code=204)
-def delete_work_experience(work_experience_id: int):
+def delete_work_experience(work_experience_id: PositivePathId):
     deleted = database.delete_work_experience(work_experience_id)
     if deleted is None:
         raise HTTPException(

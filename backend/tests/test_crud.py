@@ -15,6 +15,7 @@ from collections.abc import Callable, Iterator
 from decimal import Decimal
 import os
 from typing import Any
+from unittest.mock import Mock
 from uuid import UUID, uuid4
 
 import psycopg
@@ -456,6 +457,42 @@ def test_2_1_6_invalid_user_uuid_returns_validation_error(
     assert response.status_code == 422
 
 
+@pytest.mark.parametrize("field", ["full_name", "headline"])
+def test_profile_create_rejects_blank_required_strings(
+    client: TestClient,
+    user_id: UUID,
+    field: str,
+) -> None:
+    payload = _profile_payload(user_id)
+    payload[field] = " \t\n "
+
+    response = client.post("/profiles", json=payload)
+
+    assert response.status_code == 422
+    assert client.get(f"/users/{user_id}/profile").status_code == 404
+
+
+def test_profile_create_rejects_oversized_text_before_database_write(
+    client: TestClient,
+    user_id: UUID,
+) -> None:
+    payload = _profile_payload(user_id, summary="x" * 20_001)
+
+    response = client.post("/profiles", json=payload)
+
+    assert response.status_code == 422
+    assert client.get(f"/users/{user_id}/profile").status_code == 404
+
+
+def test_profile_create_rejects_unexpected_fields(
+    client: TestClient,
+    user_id: UUID,
+) -> None:
+    payload = _profile_payload(user_id, headlinee="Misspelled field")
+
+    assert client.post("/profiles", json=payload).status_code == 422
+
+
 def test_profile_create_rejects_missing_or_null_required_fields(
     client: TestClient, user_id: UUID
 ) -> None:
@@ -545,6 +582,21 @@ def test_2_2_3_get_nonexistent_profile(client: TestClient) -> None:
     assert response.status_code == 404
 
 
+def test_profile_endpoints_reject_nonpositive_ids_before_database_access(
+    client: TestClient,
+    monkeypatch,
+) -> None:
+    from app.routers.profiles import profiles as profile_routes
+
+    get_profile = Mock(side_effect=AssertionError("database must not be queried"))
+    monkeypatch.setattr(profile_routes, "get_profile_object", get_profile)
+
+    response = client.get("/profiles/0")
+
+    assert response.status_code == 422
+    get_profile.assert_not_called()
+
+
 def test_2_2_5_different_users_have_distinct_profiles(
     profile_factory: Callable[..., dict[str, Any]]
 ) -> None:
@@ -606,29 +658,50 @@ def test_patch_profile_rejects_null_required_fields(
         assert response.status_code == 422
 
 
-def test_2_3_5_empty_string_profile_field_is_stored(
+def test_basic_details_patch_rejects_blank_required_strings(
     client: TestClient, profile: dict[str, Any]
 ) -> None:
-    response = client.patch(
-        f"/profiles/{profile['profile_id']}/basic-details",
-        json={"headline": ""},
+    for field in ("full_name", "headline"):
+        response = client.patch(
+            f"/profiles/{profile['profile_id']}/basic-details",
+            json={field: " \t\n "},
+        )
+        assert response.status_code == 422
+
+    unchanged = client.get(
+        f"/profiles/{profile['profile_id']}/basic-details"
     )
-    assert response.status_code == 200
-    assert response.json()["headline"] == ""
-    row = _fetch_one(
-        "SELECT headline FROM profiles WHERE profile_id = %s",
-        (profile["profile_id"],),
-    )
-    assert row is not None and row["headline"] == ""
+    assert unchanged.json()["full_name"] == profile["full_name"]
+    assert unchanged.json()["headline"] == profile["headline"]
 
 
-def test_2_3_6_empty_profile_patch_returns_bad_request(
+def test_empty_basic_details_patch_returns_validation_error(
     client: TestClient, profile: dict[str, Any]
 ) -> None:
     response = client.patch(
         f"/profiles/{profile['profile_id']}/basic-details", json={}
     )
-    assert response.status_code == 400
+    assert response.status_code == 422
+
+
+def test_basic_details_patch_rejects_unexpected_fields(
+    client: TestClient, profile: dict[str, Any]
+) -> None:
+    response = client.patch(
+        f"/profiles/{profile['profile_id']}/basic-details",
+        json={"headlne": "Misspelled field"},
+    )
+    assert response.status_code == 422
+
+
+def test_basic_details_patch_rejects_oversized_text(
+    client: TestClient, profile: dict[str, Any]
+) -> None:
+    response = client.patch(
+        f"/profiles/{profile['profile_id']}/basic-details",
+        json={"summary": "x" * 20_001},
+    )
+    assert response.status_code == 422
 
 
 def test_2_3_7_patch_nonexistent_profile(client: TestClient) -> None:
@@ -923,8 +996,163 @@ def test_patch_child_rejects_null_required_fields(
         assert response.status_code == 422
 
 
+@pytest.mark.parametrize(
+    ("resource_name", "text_fields"),
+    [
+        ("work_experiences", ("title", "company")),
+        ("projects", ("title",)),
+        ("degrees", ("title", "school")),
+        ("skills", ("name",)),
+        ("languages", ("language", "proficiency")),
+        ("hobbies", ("name",)),
+    ],
+)
+def test_child_create_rejects_blank_required_text_without_writing(
+    client: TestClient,
+    profile: dict[str, Any],
+    resource_name: str,
+    text_fields: tuple[str, ...],
+) -> None:
+    resource = RESOURCE_BY_NAME[resource_name]
+    path = f"/profiles/{profile['profile_id']}/{resource_name}"
+    for field in text_fields:
+        payload = dict(resource["all_payload"])
+        payload[field] = " \t\n "
+
+        response = client.post(path, json=payload)
+
+        assert response.status_code == 422
+        collection = client.get(path)
+        assert collection.status_code == 200
+        assert collection.json() == []
+
+
+@pytest.mark.parametrize(
+    ("resource_name", "text_fields"),
+    [
+        ("work_experiences", ("title", "company")),
+        ("projects", ("title",)),
+        ("degrees", ("title", "school")),
+        ("skills", ("name",)),
+        ("languages", ("language", "proficiency")),
+        ("hobbies", ("name",)),
+    ],
+)
+def test_child_patch_rejects_blank_required_text_without_writing(
+    client: TestClient,
+    child_factory: Callable[..., dict[str, Any]],
+    profile: dict[str, Any],
+    resource_name: str,
+    text_fields: tuple[str, ...],
+) -> None:
+    resource = RESOURCE_BY_NAME[resource_name]
+    child = child_factory(resource, profile["profile_id"])
+
+    for field in text_fields:
+        response = client.patch(
+            f"/{resource_name}/{child[resource['id_field']]}",
+            json={field: " \t\n "},
+        )
+        assert response.status_code == 422
+
+    persisted = client.get(
+        f"/profiles/{profile['profile_id']}/{resource_name}"
+    )
+    assert persisted.status_code == 200
+    assert persisted.json() == [child]
+
+
+@pytest.mark.parametrize(
+    ("resource_name", "field", "too_long"),
+    [
+        ("work_experiences", "description", "x" * 20_001),
+        ("projects", "url", "x" * 2_049),
+        ("degrees", "additional_information", "x" * 20_001),
+        ("skills", "name", "x" * 501),
+        ("languages", "proficiency", "x" * 501),
+        ("hobbies", "description", "x" * 20_001),
+    ],
+)
+def test_child_create_rejects_oversized_text_before_writing(
+    client: TestClient,
+    profile: dict[str, Any],
+    resource_name: str,
+    field: str,
+    too_long: str,
+) -> None:
+    resource = RESOURCE_BY_NAME[resource_name]
+    path = f"/profiles/{profile['profile_id']}/{resource_name}"
+    payload = {**resource["all_payload"], field: too_long}
+
+    response = client.post(path, json=payload)
+
+    assert response.status_code == 422
+    assert client.get(path).json() == []
+
+
+def test_work_experience_create_rejects_end_before_start(
+    client: TestClient,
+    profile: dict[str, Any],
+) -> None:
+    response = client.post(
+        f"/profiles/{profile['profile_id']}/work_experiences",
+        json={
+            "title": "Engineer",
+            "company": "Example Co.",
+            "start_date": "2023-01-01",
+            "end_date": "2022-12-31",
+        },
+    )
+
+    assert response.status_code == 422
+    assert client.get(
+        f"/profiles/{profile['profile_id']}/work_experiences"
+    ).json() == []
+
+
+def test_work_experience_patch_rejects_date_order_against_stored_value(
+    client: TestClient,
+    profile: dict[str, Any],
+) -> None:
+    response = client.post(
+        f"/profiles/{profile['profile_id']}/work_experiences",
+        json=RESOURCE_BY_NAME["work_experiences"]["all_payload"],
+    )
+    assert response.status_code == 201
+    child_record = response.json()
+
+    record_id = child_record["work_experience_id"]
+    response = client.patch(
+        f"/work_experiences/{record_id}",
+        json={"start_date": "2024-01-01"},
+    )
+
+    assert response.status_code == 422
+    persisted = _fetch_one(
+        "SELECT start_date, end_date FROM work_experiences "
+        "WHERE work_experience_id = %s",
+        (record_id,),
+    )
+    assert persisted is not None
+    assert persisted["start_date"].isoformat() == child_record["start_date"]
+    assert persisted["end_date"].isoformat() == child_record["end_date"]
+
+
+def test_degree_create_rejects_non_finite_gpa(
+    client: TestClient,
+    profile: dict[str, Any],
+) -> None:
+    response = client.post(
+        f"/profiles/{profile['profile_id']}/degrees",
+        json={"title": "BSc", "school": "Example University", "gpa": "NaN"},
+    )
+
+    assert response.status_code == 422
+    assert client.get(f"/profiles/{profile['profile_id']}/degrees").json() == []
+
+
 @pytest.mark.parametrize("resource", RESOURCE_CASES)
-def test_3_3_5_empty_child_patch_returns_bad_request(
+def test_3_3_5_empty_child_patch_returns_validation_error(
     child_record: dict[str, Any],
     client: TestClient,
     resource: dict[str, Any],
@@ -932,7 +1160,7 @@ def test_3_3_5_empty_child_patch_returns_bad_request(
     response = client.patch(
         f"/{resource['name']}/{child_record[resource['id_field']]}", json={}
     )
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 @pytest.mark.parametrize("resource", RESOURCE_CASES)

@@ -2,7 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from psycopg.errors import ForeignKeyViolation
 
 from app import database
-from app.routers.profiles.dependencies import get_existing_basic_details
+from app.routers.profiles.dependencies import (
+    PositivePathId,
+    get_existing_basic_details,
+)
 from app.models import BasicDetailsResponse, Project, ProjectCreate, ProjectResponse
 
 router = APIRouter()
@@ -13,7 +16,10 @@ router = APIRouter()
     status_code=201,
     response_model=ProjectResponse,
 )
-def create_project(profile_id: int, project: ProjectCreate):
+def create_project(
+    profile_id: PositivePathId,
+    project: ProjectCreate,
+):
     try:
         return database.create_project(
             profile_id,
@@ -37,13 +43,11 @@ def get_projects(
 
 
 @router.patch("/projects/{project_id}", response_model=ProjectResponse)
-def update_project(project_id: int, project: Project):
+def update_project(
+    project_id: PositivePathId,
+    project: Project,
+):
     fields = project.model_dump(exclude_unset=True)
-    if not fields:
-        raise HTTPException(
-            status_code=400,
-            detail="No fields provided for update"
-        )
     updated = database.update_project(project_id, **fields)
     if updated is None:
         raise HTTPException(
@@ -52,7 +56,7 @@ def update_project(project_id: int, project: Project):
 
 
 @router.delete("/projects/{project_id}", status_code=204)
-def delete_project(project_id: int):
+def delete_project(project_id: PositivePathId):
     deleted = database.delete_project(project_id)
     if deleted is None:
         raise HTTPException(
