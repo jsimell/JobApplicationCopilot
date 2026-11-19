@@ -4,9 +4,9 @@ from psycopg.errors import ForeignKeyViolation
 from app import database
 from app.routers.profiles.dependencies import (
     PositivePathId,
-    get_existing_basic_details,
+    ensure_profile_exists,
 )
-from app.models import BasicDetailsResponse, Skill, SkillCreate, SkillResponse
+from app.models import Skill, SkillCreate, SkillResponse
 
 router = APIRouter()
 
@@ -37,9 +37,10 @@ def create_skill(
     response_model=list[SkillResponse],
 )
 def get_skills(
-    basic_details: BasicDetailsResponse = Depends(get_existing_basic_details),
+    profile_id: PositivePathId,
+    _: None = Depends(ensure_profile_exists),
 ):
-    return database.get_skills(basic_details.profile_id)
+    return database.get_skills(profile_id)
 
 
 @router.patch("/skills/{skill_id}", response_model=SkillResponse)

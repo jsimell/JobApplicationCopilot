@@ -4,9 +4,9 @@ from psycopg.errors import ForeignKeyViolation
 from app import database
 from app.routers.profiles.dependencies import (
     PositivePathId,
-    get_existing_basic_details,
+    ensure_profile_exists,
 )
-from app.models import BasicDetailsResponse, Language, LanguageCreate, LanguageResponse
+from app.models import Language, LanguageCreate, LanguageResponse
 
 router = APIRouter()
 
@@ -37,9 +37,10 @@ def create_language(
     response_model=list[LanguageResponse],
 )
 def get_languages(
-    basic_details: BasicDetailsResponse = Depends(get_existing_basic_details),
+    profile_id: PositivePathId,
+    _: None = Depends(ensure_profile_exists),
 ):
-    return database.get_languages(basic_details.profile_id)
+    return database.get_languages(profile_id)
 
 
 @router.patch("/languages/{language_id}", response_model=LanguageResponse)

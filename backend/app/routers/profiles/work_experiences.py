@@ -4,10 +4,9 @@ from psycopg.errors import ForeignKeyViolation
 from app import database
 from app.routers.profiles.dependencies import (
     PositivePathId,
-    get_existing_basic_details,
+    ensure_profile_exists,
 )
 from app.models import (
-    BasicDetailsResponse,
     WorkExperience,
     WorkExperienceCreate,
     WorkExperienceResponse,
@@ -42,9 +41,10 @@ def add_work_experience(
     response_model=list[WorkExperienceResponse],
 )
 def get_work_experiences(
-    basic_details: BasicDetailsResponse = Depends(get_existing_basic_details),
+    profile_id: PositivePathId,
+    _: None = Depends(ensure_profile_exists),
 ):
-    return database.get_work_experiences(basic_details.profile_id)
+    return database.get_work_experiences(profile_id)
 
 
 @router.patch(

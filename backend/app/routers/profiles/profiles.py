@@ -3,10 +3,7 @@ from psycopg.errors import ForeignKeyViolation, UniqueViolation
 
 from app import database
 from app.models import BasicDetailsResponse, BasicDetailsUpdate, ProfileCreate
-from app.routers.profiles.dependencies import (
-    PositivePathId,
-    get_existing_basic_details,
-)
+from app.routers.profiles.dependencies import PositivePathId
 from app.services.profile_builder import get_profile_object
 
 router = APIRouter()
@@ -55,7 +52,10 @@ def read_profile(profile_id: PositivePathId):
     response_model=BasicDetailsResponse,
 )
 def read_basic_details(profile_id: PositivePathId):
-    return get_existing_basic_details(profile_id)
+    basic_details = database.get_basic_details(profile_id)
+    if basic_details is None:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return basic_details
 
 
 @router.patch(

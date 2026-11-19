@@ -4,9 +4,9 @@ from psycopg.errors import ForeignKeyViolation
 from app import database
 from app.routers.profiles.dependencies import (
     PositivePathId,
-    get_existing_basic_details,
+    ensure_profile_exists,
 )
-from app.models import BasicDetailsResponse, Hobby, HobbyCreate, HobbyResponse
+from app.models import Hobby, HobbyCreate, HobbyResponse
 
 router = APIRouter()
 
@@ -37,9 +37,10 @@ def create_hobby(
     response_model=list[HobbyResponse],
 )
 def get_hobbies(
-    basic_details: BasicDetailsResponse = Depends(get_existing_basic_details),
+    profile_id: PositivePathId,
+    _: None = Depends(ensure_profile_exists),
 ):
-    return database.get_hobbies(basic_details.profile_id)
+    return database.get_hobbies(profile_id)
 
 
 @router.patch("/hobbies/{hobby_id}", response_model=HobbyResponse)

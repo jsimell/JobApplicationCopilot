@@ -4,9 +4,9 @@ from psycopg.errors import ForeignKeyViolation
 from app import database
 from app.routers.profiles.dependencies import (
     PositivePathId,
-    get_existing_basic_details,
+    ensure_profile_exists,
 )
-from app.models import BasicDetailsResponse, Degree, DegreeCreate, DegreeResponse
+from app.models import Degree, DegreeCreate, DegreeResponse
 
 router = APIRouter()
 
@@ -37,9 +37,10 @@ def create_degree(
     response_model=list[DegreeResponse],
 )
 def get_degrees(
-    basic_details: BasicDetailsResponse = Depends(get_existing_basic_details),
+    profile_id: PositivePathId,
+    _: None = Depends(ensure_profile_exists),
 ):
-    return database.get_degrees(basic_details.profile_id)
+    return database.get_degrees(profile_id)
 
 
 @router.patch("/degrees/{degree_id}", response_model=DegreeResponse)
