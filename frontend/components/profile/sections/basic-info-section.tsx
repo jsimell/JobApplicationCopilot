@@ -95,7 +95,7 @@ export function BasicInfoSection({ value, onChange }: { value: BasicDetails; onC
             <Field
               label="Career goals"
               htmlFor="profile-career_goals_description"
-              hint="Used by the AI assistant to prioritize relevant opportunities. Not shown on your CV."
+              hint="Used by the AI assistant to prioritize relevant opportunities. A more detailed description will likely lead to more accurate AI suggestions."
               className="sm:col-span-2"
             >
               <TextArea
@@ -131,14 +131,18 @@ export function BasicInfoSection({ value, onChange }: { value: BasicDetails; onC
                 </p>
               )}
             </div>
-            {value.summary?.trim() && <p className="text-sm leading-relaxed text-foreground/85 text-pretty">{value.summary}</p>}
+            {value.summary?.trim() && (
+              <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/85 text-pretty">{value.summary}</p>
+            )}
             {value.career_goals_description?.trim() && (
               <div className="rounded-lg bg-secondary/60 p-4">
-                <p className="mb-1.5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
+                <p className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
                   <Target className="size-3.5" aria-hidden="true" />
                   Career goals
                 </p>
-                <p className="text-sm leading-relaxed text-foreground/80 text-pretty">{value.career_goals_description}</p>
+                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/80 text-pretty">
+                  {value.career_goals_description}
+                </p>
               </div>
             )}
           </div>
