@@ -7,6 +7,23 @@ import { SectionCard } from '../section-card'
 import type { WorkExperience } from '../../shared/types'
 import { Checkbox, Field, MonthYearInput, TextArea, TextInput, formatDuration, formatRange, newTempId, orNull } from '../ui'
 
+function compareOptionalDatesDescending(a: string | null, b: string | null) {
+  if (a === null && b === null) return 0
+  if (a === null) return 1
+  if (b === null) return -1
+  return b.localeCompare(a)
+}
+
+function compareWorkExperiences(a: WorkExperience, b: WorkExperience) {
+  if (a.end_date === null && b.end_date !== null) return -1
+  if (a.end_date !== null && b.end_date === null) return 1
+
+  const endDateComparison = compareOptionalDatesDescending(a.end_date, b.end_date)
+  if (endDateComparison !== 0) return endDateComparison
+
+  return compareOptionalDatesDescending(a.start_date, b.start_date)
+}
+
 export function WorkSection({
   profileId,
   items,
@@ -21,6 +38,11 @@ export function WorkSection({
   onDelete: (workExperienceId: number) => Promise<void>
 }) {
   const currentRoleById = useRef(new Map<number, boolean>())
+  const sortedItems = [...items].sort(compareWorkExperiences)
+
+  const updateItems = (nextItems: WorkExperience[]) => {
+    onChange([...nextItems].sort(compareWorkExperiences))
+  }
 
   return (
     <SectionCard
@@ -31,8 +53,8 @@ export function WorkSection({
     >
       <EntryList
         sectionKey="work_experiences"
-        items={items}
-        onChange={onChange}
+        items={sortedItems}
+        onChange={updateItems}
         onSaveEntry={(work) =>
           onSave({
             ...work,
@@ -96,7 +118,7 @@ function WorkSummary({ item: w }: { item: WorkExperience }) {
           {w.start_date && <span className="text-muted-foreground/70"> · {formatDuration(w.start_date, w.end_date)}</span>}
         </p>
         {w.description && (
-          <p className="mt-2 line-clamp-2 whitespace-pre-line text-sm leading-relaxed text-foreground/75">{w.description}</p>
+          <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-foreground/75">{w.description}</p>
         )}
       </div>
     </div>
@@ -112,7 +134,9 @@ function WorkForm({
   update: (p: Partial<WorkExperience>) => void
   onCurrentRoleChange: (isCurrent: boolean) => void
 }) {
-  const [currentlyWorking, setCurrentlyWorking] = useState(!d.end_date)
+  const [currentlyWorking, setCurrentlyWorking] = useState(
+    d.id > 0 ? !d.end_date : false,
+  )
   useEffect(() => {
     onCurrentRoleChange(currentlyWorking)
   }, [d.id, onCurrentRoleChange, currentlyWorking])

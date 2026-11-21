@@ -119,8 +119,14 @@ def create_work_experience(
 
 def get_work_experiences(profile_id: int):
     return execute_query_all(
-        """SELECT * FROM work_experiences WHERE profile_id = %s;""", (
-            profile_id,)
+        """
+        SELECT * FROM work_experiences
+        WHERE profile_id = %s
+        ORDER BY
+            end_date IS NULL DESC,
+            end_date DESC NULLS LAST,
+            start_date DESC NULLS LAST;
+        """, (profile_id,)
     )
 
 
