@@ -142,7 +142,7 @@ export function SkillMultiSelect({
             top: popupPosition.top,
             bottom: popupPosition.bottom,
           }}
-          className="z-[1000] overflow-hidden rounded-lg border bg-popover shadow-lg animate-in fade-in-0 zoom-in-95"
+          className="z-1000 overflow-hidden rounded-lg border bg-popover shadow-lg animate-in fade-in-0 zoom-in-95"
         >
           <div className="flex items-center gap-2 border-b px-3">
             <Search className="size-4 text-muted-foreground" aria-hidden="true" />

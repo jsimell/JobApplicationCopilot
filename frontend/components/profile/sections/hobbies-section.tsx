@@ -58,6 +58,7 @@ export function HobbiesSection({
               <Field label="Description" htmlFor={fid('description')}>
                 <TextArea
                   id={fid('description')}
+                  autoResize
                   rows={3}
                   value={d.description ?? ''}
                   onChange={(e) => update({ description: orNull(e.target.value) })}

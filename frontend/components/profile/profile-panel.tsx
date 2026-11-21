@@ -353,6 +353,7 @@ export function ProfilePanel() {
                     >
                       <TextArea
                         id="initial-profile-summary"
+                        autoResize
                         rows={4}
                         value={createInput.summary ?? ""}
                         onChange={(event) =>
@@ -371,6 +372,7 @@ export function ProfilePanel() {
                     >
                       <TextArea
                         id="initial-profile-career-goals"
+                        autoResize
                         rows={4}
                         value={createInput.career_goals_description ?? ""}
                         onChange={(event) =>

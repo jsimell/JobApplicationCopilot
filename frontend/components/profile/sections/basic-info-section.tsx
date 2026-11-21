@@ -87,6 +87,7 @@ export function BasicInfoSection({ value, onChange }: { value: BasicDetails; onC
             <Field label="Summary" htmlFor="profile-summary" className="sm:col-span-2">
               <TextArea
                 id="profile-summary"
+                autoResize
                 rows={4}
                 value={draft.summary ?? ''}
                 onChange={(e) => update({ summary: orNull(e.target.value) })}
@@ -100,6 +101,7 @@ export function BasicInfoSection({ value, onChange }: { value: BasicDetails; onC
             >
               <TextArea
                 id="profile-career_goals_description"
+                autoResize
                 rows={6}
                 value={draft.career_goals_description ?? ''}
                 onChange={(e) => update({ career_goals_description: orNull(e.target.value) })}

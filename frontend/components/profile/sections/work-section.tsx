@@ -188,6 +188,7 @@ function WorkForm({
       >
         <TextArea
           id={fid('description')}
+          autoResize
           rows={6}
           value={d.description ?? ''}
           onChange={(e) => update({ description: orNull(e.target.value) })}

@@ -1,4 +1,4 @@
-import { forwardRef, useId, useState } from 'react'
+import { forwardRef, useId, useLayoutEffect, useRef, useState } from 'react'
 import type {
   ButtonHTMLAttributes,
   InputHTMLAttributes,
@@ -138,9 +138,56 @@ export function orNull(value: string) {
   return value.trim() === '' ? null : value
 }
 
-export function TextArea({ className, rows = 4, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function TextArea({
+  autoResize = false,
+  className,
+  rows = 4,
+  value,
+  ...props
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & { autoResize?: boolean }) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const manuallyResizedRef = useRef(false)
+  const lastHeightRef = useRef<number | null>(null)
+
+  useLayoutEffect(() => {
+    const textarea = textareaRef.current
+    if (!autoResize || !textarea || typeof ResizeObserver === 'undefined') return
+
+    const observer = new ResizeObserver(() => {
+      const height = textarea.offsetHeight
+      if (lastHeightRef.current !== null && height !== lastHeightRef.current) {
+        manuallyResizedRef.current = true
+      }
+      lastHeightRef.current = height
+    })
+    observer.observe(textarea)
+    return () => observer.disconnect()
+  }, [autoResize])
+
+  useLayoutEffect(() => {
+    const textarea = textareaRef.current
+    if (!autoResize || !textarea) return
+
+    if (lastHeightRef.current !== null && textarea.offsetHeight !== lastHeightRef.current) {
+      manuallyResizedRef.current = true
+    }
+
+    if (!manuallyResizedRef.current) {
+      textarea.style.height = 'auto'
+      const borderHeight = textarea.offsetHeight - textarea.clientHeight
+      textarea.style.height = `${textarea.scrollHeight + borderHeight}px`
+    }
+    lastHeightRef.current = textarea.offsetHeight
+  }, [autoResize, value])
+
   return (
-    <textarea rows={rows} className={cn(controlBase, 'resize-y py-2 leading-relaxed', className)} {...props} />
+    <textarea
+      ref={textareaRef}
+      rows={rows}
+      value={value}
+      className={cn(controlBase, 'resize-y py-2 leading-relaxed', autoResize && 'overflow-y-auto', className)}
+      {...props}
+    />
   )
 }
 

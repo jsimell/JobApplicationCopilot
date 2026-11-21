@@ -142,6 +142,7 @@ export function ProjectsSection({
               <Field label="Description" htmlFor={fid('description')} className="sm:col-span-2">
                 <TextArea
                   id={fid('description')}
+                  autoResize
                   rows={4}
                   value={d.description ?? ''}
                   onChange={(e) => update({ description: orNull(e.target.value) })}

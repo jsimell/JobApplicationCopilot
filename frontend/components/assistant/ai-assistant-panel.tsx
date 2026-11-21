@@ -91,11 +91,12 @@ export function AiAssistantPanel() {
         <Field label="Job advertisement" htmlFor="job-advertisement">
           <TextArea
             id="job-advertisement"
+            autoResize
             rows={10}
             value={jobAdvertisement}
             onChange={(event) => setJobAdvertisement(event.target.value)}
             placeholder="Paste the job advertisement here..."
-            className="min-h-56 resize-y bg-card"
+            className="resize-y bg-card"
           />
         </Field>
 
@@ -186,9 +187,10 @@ function ApplicationWorkspace({
           </label>
           <TextArea
             id="application-editor"
+            autoResize
             value={application.text}
             onChange={(event) => onApplicationChange({ ...application, text: event.target.value })}
-            className="min-h-64 flex-1 resize-y leading-relaxed"
+            className="resize-y leading-relaxed"
           />
           <div className="mt-3 flex justify-end">
             <Button variant="secondary" onClick={exportApplication}>

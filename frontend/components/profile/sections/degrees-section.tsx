@@ -132,6 +132,7 @@ export function DegreesSection({
               <Field label="Additional information" htmlFor={fid('additional_information')} className="sm:col-span-2">
                 <TextArea
                   id={fid('additional_information')}
+                  autoResize
                   rows={3}
                   value={d.additional_information ?? ''}
                   placeholder="Thesis, honors, relevant coursework…"
