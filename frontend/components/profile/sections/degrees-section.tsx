@@ -6,6 +6,17 @@ import { SectionCard } from '../section-card'
 import type { Degree } from '../../shared/types'
 import { DecimalInput, Field, MonthYearInput, TextArea, TextInput, formatMonth, newTempId, orNull } from '../ui'
 
+function compareOptionalDatesDescending(a: string | null, b: string | null) {
+  if (a === null && b === null) return 0
+  if (a === null) return 1
+  if (b === null) return -1
+  return b.localeCompare(a)
+}
+
+function compareDegrees(a: Degree, b: Degree) {
+  return compareOptionalDatesDescending(a.finished_date, b.finished_date)
+}
+
 export function DegreesSection({
   profileId,
   items,
@@ -19,17 +30,23 @@ export function DegreesSection({
   onSave: (degree: Degree) => Promise<Degree>
   onDelete: (degreeId: number) => Promise<void>
 }) {
+  const sortedItems = [...items].sort(compareDegrees)
+
+  const updateItems = (nextItems: Degree[]) => {
+    onChange([...nextItems].sort(compareDegrees))
+  }
+
   return (
     <SectionCard
       id="degrees"
       icon={GraduationCap}
       title="Education"
-      description="Degrees, diplomas, and academic programs."
+      description="Degrees, diplomas, and academic programs, most recent first."
     >
       <EntryList
         sectionKey="degrees"
-        items={items}
-        onChange={onChange}
+        items={sortedItems}
+        onChange={updateItems}
         onSaveEntry={onSave}
         onDeleteEntry={(degree) => onDelete(degree.id)}
         noun="degree"
@@ -99,7 +116,7 @@ export function DegreesSection({
                   onChange={(e) => update({ location: orNull(e.target.value) })}
                 />
               </Field>
-              <Field label="Finished" htmlFor={fid('finished_date')}>
+              <Field label="Graduated" htmlFor={fid('finished_date')}>
                 <MonthYearInput
                   id={fid('finished_date')}
                   ariaLabel="Finished date"
