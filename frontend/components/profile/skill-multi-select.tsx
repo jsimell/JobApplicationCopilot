@@ -43,7 +43,6 @@ export function SkillMultiSelect({
 
   useEffect(() => {
     if (!open) return
-    searchRef.current?.focus()
     const onPointer = (e: PointerEvent) => {
       const target = e.target as Node
       if (!rootRef.current?.contains(target) && !popupRef.current?.contains(target)) setOpen(false)
@@ -86,6 +85,13 @@ export function SkillMultiSelect({
       window.removeEventListener('scroll', updatePosition, true)
     }
   }, [open])
+
+  const hasPopupPosition = popupPosition !== null
+  useEffect(() => {
+    if (open && hasPopupPosition) {
+      searchRef.current?.focus({ preventScroll: true })
+    }
+  }, [open, hasPopupPosition])
 
   const toggle = (id: number) => onChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id])
 
