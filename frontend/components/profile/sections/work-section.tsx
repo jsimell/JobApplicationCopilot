@@ -5,14 +5,8 @@ import { Briefcase } from 'lucide-react'
 import { EntryList } from '../entry-editor'
 import { SectionCard } from '../section-card'
 import type { WorkExperience } from '../../shared/types'
+import { compareOptionalDatesDescending } from '../../shared/date-sort'
 import { Checkbox, Field, MonthYearInput, TextArea, TextInput, formatDuration, formatRange, newTempId, orNull } from '../ui'
-
-function compareOptionalDatesDescending(a: string | null, b: string | null) {
-  if (a === null && b === null) return 0
-  if (a === null) return 1
-  if (b === null) return -1
-  return b.localeCompare(a)
-}
 
 function compareWorkExperiences(a: WorkExperience, b: WorkExperience) {
   if (a.end_date === null && b.end_date !== null) return -1

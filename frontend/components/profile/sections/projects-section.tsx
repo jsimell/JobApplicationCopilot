@@ -6,7 +6,12 @@ import { EntryList } from '../entry-editor'
 import { SectionCard } from '../section-card'
 import { SkillMultiSelect } from '../skill-multi-select'
 import type { Project, Skill } from '../../shared/types'
+import { compareOptionalDatesDescending } from '../../shared/date-sort'
 import { Field, MonthYearInput, Select, TextArea, TextInput, chipColor, formatMonth, newTempId, orNull } from '../ui'
+
+function compareProjects(a: Project, b: Project) {
+  return compareOptionalDatesDescending(a.project_date, b.project_date)
+}
 
 export function ProjectsSection({
   profileId,
@@ -24,18 +29,23 @@ export function ProjectsSection({
   skills: Skill[]
 }) {
   const skillById = new Map(skills.map((s) => [s.id, s]))
+  const sortedItems = [...items].sort(compareProjects)
+
+  const updateItems = (nextItems: Project[]) => {
+    onChange([...nextItems].sort(compareProjects))
+  }
 
   return (
     <SectionCard
       id="projects"
       icon={FolderKanban}
       title="Projects"
-      description="Side projects, open source, and notable work initiatives."
+      description="Side projects, open source, and notable work initiatives, most recent first."
     >
       <EntryList
         sectionKey="projects"
-        items={items}
-        onChange={onChange}
+        items={sortedItems}
+        onChange={updateItems}
         onSaveEntry={onSave}
         onDeleteEntry={(project) => onDelete(project.id)}
         noun="project"

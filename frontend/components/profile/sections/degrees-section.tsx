@@ -4,14 +4,8 @@ import { GraduationCap } from 'lucide-react'
 import { EntryList } from '../entry-editor'
 import { SectionCard } from '../section-card'
 import type { Degree } from '../../shared/types'
+import { compareOptionalDatesDescending } from '../../shared/date-sort'
 import { DecimalInput, Field, MonthYearInput, TextArea, TextInput, formatMonth, newTempId, orNull } from '../ui'
-
-function compareOptionalDatesDescending(a: string | null, b: string | null) {
-  if (a === null && b === null) return 0
-  if (a === null) return 1
-  if (b === null) return -1
-  return b.localeCompare(a)
-}
 
 function compareDegrees(a: Degree, b: Degree) {
   return compareOptionalDatesDescending(a.finished_date, b.finished_date)
