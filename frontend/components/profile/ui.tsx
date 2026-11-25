@@ -77,7 +77,7 @@ export function Field({
   children,
   required,
 }: {
-  label: string
+  label?: string
   htmlFor?: string
   hint?: string
   required?: boolean
@@ -86,17 +86,19 @@ export function Field({
 }) {
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
-      <label htmlFor={htmlFor} className="text-xs font-medium text-foreground/80">
-        {label}
-        {required && (
-          <>
-            <span className="ml-0.5 text-destructive" aria-hidden="true">
-              *
-            </span>
-            <span className="sr-only"> (required)</span>
-          </>
-        )}
-      </label>
+      {label && (
+        <label htmlFor={htmlFor} className="text-xs font-medium text-foreground/80">
+          {label}
+          {required && (
+            <>
+              <span className="ml-0.5 text-destructive" aria-hidden="true">
+                *
+              </span>
+              <span className="sr-only"> (required)</span>
+            </>
+          )}
+        </label>
+      )}
       {children}
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
