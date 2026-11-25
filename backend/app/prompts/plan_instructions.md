@@ -30,11 +30,11 @@ Produce a concise, practical application plan using the following structure:
 **Central positioning**
 One or two sentences describing the main argument the application should communicate.
 
-**Employer priorities**
-The 2–3 most important things the employer is looking for.
+**How does the applicant match employer priorities?**
+Briefly list the top 0-5 matches between the applicant and what is desired and required in the role.
 
 **Primary evidence**
-The strongest experience or qualification to emphasize, including what it demonstrates and why it is relevant.
+The single strongest applicant experience or qualification to emphasize, including what it demonstrates and why it is relevant.
 
 **Supporting evidence**
 Other relevant experiences, skills, or qualifications worth including, with a brief explanation of their purpose. Distinguish between essential supporting evidence and optional details where appropriate.
