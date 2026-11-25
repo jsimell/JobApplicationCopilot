@@ -17,6 +17,14 @@ OptionalUrl = Annotated[
     str,
     StringConstraints(max_length=2_048),
 ]
+NonEmptyText = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True,
+        min_length=1,
+        max_length=50_000,
+    ),
+]
 
 
 class _PatchModel(BaseModel):
@@ -197,15 +205,35 @@ class ProjectSkill(BaseModel):
 ####################################
 # Application Generation Models
 
+class ApplicationPlanRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    job_ad: NonEmptyText
+    profile_id: int = Field(gt=0)
+    user_guidance: Annotated[
+        str,
+        StringConstraints(
+            strip_whitespace=True,
+            max_length=5_000,
+        ),
+    ] | None = None
+
+
+class ApplicationPlanResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    application_plan: NonEmptyText
+
+
 class ApplicationGenerationRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    job_ad: Annotated[
-        str,
-        StringConstraints(strip_whitespace=True, min_length=1, max_length=50_000),
-    ]
+    job_ad: NonEmptyText
     profile_id: int = Field(gt=0)
+    application_plan: NonEmptyText
 
 
 class ApplicationGenerationResponse(BaseModel):
-    application_text: str
+    model_config = ConfigDict(extra="forbid")
+
+    application_text: NonEmptyText

@@ -13,7 +13,7 @@ from app.routers.profiles import (
     work_experiences,
 )
 
-from app.routers.job_applications import generation
+from app.routers.job_applications import applications
 
 app = FastAPI()
 
@@ -33,7 +33,7 @@ app.include_router(skills.router)
 app.include_router(languages.router)
 app.include_router(hobbies.router)
 app.include_router(project_skills.router)
-app.include_router(generation.router)
+app.include_router(applications.router)
 
 
 # Root Endpoint

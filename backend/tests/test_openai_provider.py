@@ -125,7 +125,7 @@ def test_openai_client_uses_bounded_timeout_and_single_retry(monkeypatch):
     assert result is client
     constructor.assert_called_once_with(
         api_key="test-key",
-        timeout=30.0,
+        timeout=openai_provider.REQUEST_TIMEOUT_SECONDS,
         max_retries=1,
     )
 
