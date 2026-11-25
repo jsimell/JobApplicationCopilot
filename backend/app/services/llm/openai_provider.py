@@ -11,7 +11,7 @@ from openai import (
     RateLimitError,
 )
 
-REQUEST_TIMEOUT_SECONDS = 15.0
+REQUEST_TIMEOUT_SECONDS = 30.0
 MAX_RETRIES = 1
 
 
