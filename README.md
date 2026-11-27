@@ -2,7 +2,7 @@
 
 A work-in-progress full-stack application for managing career information and eventually streamlining the job search process through LLM-powered features.
 
-The core idea is to maintain an all-encompassing career profile containing a person's professional background, career goals, education, skills, projects, etc. This information will then be used to identify and extract the most relevant details for specific job opportunities through future AI-assisted features.
+The core idea is to maintain an all-encompassing career profile containing a person's professional background, career goals, education, skills, projects, etc. This information will then be used to identify and extract the most relevant details for specific job opportunities through AI-assisted features.
 
 <img width="1863" height="934" alt="Screenshot From 2026-11-11 15-08-19" src="https://github.com/user-attachments/assets/de04c308-a106-4a40-bab8-ce1a3387a423" />
 
@@ -22,11 +22,14 @@ The project serves two main purposes:
 
 ## Current Status & Next Steps
 
-The backend and frontend are functional, supporting career profile management and the first unoptimized version of LLM-powered job application generation. The backend also includes automated testing, input validation, error handling, and database migrations.
+The application supports career profile management and a complete, three-step AI-assisted application drafting workflow. Users can enter a job advertisement, optionally provide guidance about what to emphasize, review and edit an AI-generated application plan, then generate, edit, and export an application draft. The profile includes basic information, education, work experience, skills, projects, languages, and hobbies.
+
+The workflow is functional, but generated plans, drafts, and edits are held in frontend state rather than persisted between page reloads or separate visits. The application editor's chat area is a placeholder; conversational refinement is not implemented. The database already has tables for application sessions and messages, but the workflow does not yet use them. The backend includes request validation, AI-provider error handling, database migrations, and automated tests. Authentication and authorization for public multi-user use are not implemented.
 
 **Next steps:**
-- Improve the AI-assisted application writing workflow, particularly through iterative conversational refinement and internal system prompt optimization.
-- Introduce additional controls for application generation, such as writing style preferences and selection of relevant career experiences.
-- Implement application session persistence and conversation history.
-- Improve frontend usability, moving from a prototype to a more polished design.
-- Potentially, in the future, implement user authentication and authorization to support public multi-user access, extending my backend skills even further.
+- Connect application sessions to the existing database tables, extending the schema as needed, so job details, plans, generated drafts, edits, and future conversation history can be saved and restored.
+- Implement conversational application refinement in the editor, including backend support and persistence for messages and revised drafts.
+- Evaluate and improve the planning and application-generation prompts using representative job advertisements and profiles.
+- Add generation controls, such as writing-style preferences and choosing which profile experiences or projects to emphasize.
+- Continue improving usability and accessibility across the profile and application workflow.
+- Add authentication and authorization to support multiple users and potential deployment of the app.
