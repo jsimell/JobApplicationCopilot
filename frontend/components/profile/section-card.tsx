@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { SectionCardHeader } from '../shared/section-card-header'
 
 export function SectionCard({
   id,
@@ -20,22 +21,15 @@ export function SectionCard({
     <section
       id={`section-${id}`}
       aria-labelledby={`section-${id}-title`}
-      className="scroll-mt-20 rounded-xl border bg-background shadow-xs"
+      className="scroll-mt-20 rounded-xl border bg-card shadow-sm"
     >
-      <header className="flex items-start justify-between gap-4 border-b px-5 py-4 sm:px-6">
-        <div className="flex items-start gap-3">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
-            <Icon className="size-4.5" aria-hidden="true" />
-          </div>
-          <div>
-            <h2 id={`section-${id}-title`} className="text-base font-semibold tracking-tight text-primary">
-              {title}
-            </h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
-          </div>
-        </div>
-        {meta && <div className="flex shrink-0 items-center gap-2 pt-1">{meta}</div>}
-      </header>
+      <SectionCardHeader
+        titleId={`section-${id}-title`}
+        icon={<Icon className="size-4.5" aria-hidden="true" />}
+        title={title}
+        description={description}
+        meta={meta}
+      />
       <div className="px-5 py-5 sm:px-6">{children}</div>
     </section>
   )

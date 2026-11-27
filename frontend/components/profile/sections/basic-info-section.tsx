@@ -35,7 +35,7 @@ export function BasicInfoSection({ value, onChange }: { value: BasicDetails; onC
 
   return (
     <SectionCard
-      id="profile"
+      id="basic_details"
       icon={UserRound}
       title="Basic Information"
       description="How you introduce yourself to employers."

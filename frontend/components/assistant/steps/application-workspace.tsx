@@ -2,7 +2,7 @@ import { ArrowLeft, Bot, Download, Send } from 'lucide-react'
 import { cn } from '@/services/utils'
 import type { GeneratedApplication } from '@/services/job-application-api'
 import { Button, TextArea } from '../../profile/ui'
-import { WorkflowProgress } from '../application-workflow-ui'
+import { SectionCardHeader } from '../../shared/section-card-header'
 
 interface ChatMessage {
   id: string
@@ -32,37 +32,44 @@ export function ApplicationWorkspace({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-y-auto px-4 pb-4 pt-3">
-      <Button variant="secondary" onClick={onBack} className="mb-3 self-start px-2">
-        <ArrowLeft className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-        Back to plan
-      </Button>
-
-      <div className="mx-auto w-full max-w-2xl">
-        <WorkflowProgress activeStep={3} />
+    <div className="mx-auto flex min-h-full w-full flex-col px-4 py-6 sm:py-6 xl:h-full xl:min-h-0">
+      <div className="mb-4 flex h-10 shrink-0 items-center">
+        <Button variant="secondary" onClick={onBack} className="self-start px-2">
+          <ArrowLeft className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+          Back to plan
+        </Button>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 2xl:grid-cols-2 2xl:overflow-hidden">
-        <section className="flex min-h-120 min-w-0 flex-col rounded-xl border bg-card p-4 2xl:min-h-0">
-          <div className="mb-3">
-            <h2 className="text-sm font-semibold text-foreground">Application editor</h2>
-            <p className="mt-1 text-xs text-muted-foreground">Edit your draft before exporting it.</p>
-          </div>
-          <label htmlFor="application-editor" className="sr-only">
-            Generated application
-          </label>
-          <TextArea
-            id="application-editor"
-            autoResize
-            value={application.text}
-            onChange={(event) => onApplicationChange({ ...application, text: event.target.value })}
-            className="resize-y leading-relaxed"
+      <div className="grid min-w-0 grid-cols-1 gap-6 xl:min-h-0 xl:flex-1 xl:grid-cols-2 xl:grid-rows-1">
+        <section
+          aria-labelledby="application-editor-title"
+          className="flex min-h-120 min-w-0 flex-col rounded-xl border bg-card shadow-sm xl:min-h-0"
+        >
+          <SectionCardHeader
+            titleId="application-editor-title"
+            icon={<span className="text-sm font-semibold">3</span>}
+            title="Application editor"
+            description="Edit your draft before exporting it."
           />
-          <div className="mt-3 flex justify-end">
-            <Button variant="secondary" onClick={exportApplication}>
-              <Download className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-              Export application text
-            </Button>
+          <div className="flex min-h-0 flex-1 flex-col px-5 py-5 sm:px-6">
+            <label htmlFor="application-editor" className="sr-only">
+              Generated application
+            </label>
+            <TextArea
+              id="application-editor"
+              autoResize
+              value={application.text}
+              onChange={(event) =>
+                onApplicationChange({ ...application, text: event.target.value })
+              }
+              className="resize-y leading-relaxed xl:max-h-full xl:min-h-0 xl:flex-1"
+            />
+            <div className="mt-3 flex justify-end">
+              <Button variant="secondary" onClick={exportApplication}>
+                <Download className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                Export application text
+              </Button>
+            </div>
           </div>
         </section>
 
@@ -74,16 +81,18 @@ export function ApplicationWorkspace({
 
 function ApplicationChat({ messages }: { messages: ChatMessage[] }) {
   return (
-    <section className="flex min-h-96 min-w-0 flex-col overflow-hidden rounded-xl border bg-card 2xl:min-h-0">
-      <div className="shrink-0 border-b px-4 py-3">
-        <h2 className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Bot className="size-4 text-primary" aria-hidden="true" />
-          AI chat
-        </h2>
-        <p className="mt-1 text-xs text-muted-foreground">Refine your application with AI</p>
-      </div>
+    <section
+      aria-labelledby="application-chat-title"
+      className="flex min-h-96 min-w-0 flex-col overflow-hidden rounded-xl border bg-card shadow-sm xl:min-h-0"
+    >
+      <SectionCardHeader
+        titleId="application-chat-title"
+        icon={<Bot className="size-4.5" aria-hidden="true" />}
+        title="AI chat"
+        description="Refine your application with AI"
+      />
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto bg-canvas/60 p-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto bg-canvas/60 px-5 py-5 sm:px-6">
         {messages.length === 0 ? (
           <div className="my-auto flex items-start gap-2.5">
             <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary text-primary">
@@ -119,7 +128,7 @@ function ApplicationChat({ messages }: { messages: ChatMessage[] }) {
         )}
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 border-t bg-card p-3">
+      <div className="flex shrink-0 items-center gap-2 border-t bg-card px-5 py-4 sm:px-6">
         <label htmlFor="ai-refinement-input" className="sr-only">
           Message the AI assistant
         </label>

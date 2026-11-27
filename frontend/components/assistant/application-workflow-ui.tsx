@@ -1,37 +1,4 @@
-import { AlertCircle, Check, X } from 'lucide-react'
-
-export function WorkflowProgress({ activeStep }: { activeStep: 1 | 2 | 3 }) {
-  const steps = ['Job details', 'Review plan', 'Write application']
-
-  return (
-    <ol aria-label="Application writing steps" className="mb-6 grid grid-cols-3">
-      {steps.map((step, index) => {
-        const stepNumber = index + 1
-        const isComplete = stepNumber < activeStep
-        const isActive = stepNumber === activeStep
-        return (
-          <li key={step} className="flex flex-col items-center gap-2 text-center">
-            <span
-              aria-current={isActive ? 'step' : undefined}
-              className={`flex size-7 items-center justify-center rounded-full border text-xs font-semibold ${
-                isComplete
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : isActive
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-card text-muted-foreground'
-              }`}
-            >
-              {isComplete ? <Check className="size-3.5" aria-hidden="true" /> : stepNumber}
-            </span>
-            <span className={`text-xs ${isActive ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
-              {step}
-            </span>
-          </li>
-        )
-      })}
-    </ol>
-  )
-}
+import { AlertCircle, X } from 'lucide-react'
 
 export function GenerationError({ message, onDismiss }: { message: string; onDismiss: () => void }) {
   return (
