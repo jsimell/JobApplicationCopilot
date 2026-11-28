@@ -4,7 +4,15 @@ A work-in-progress full-stack application for managing career information and ev
 
 The core idea is to maintain an all-encompassing career profile containing a person's professional background, career goals, education, skills, projects, etc. This information will then be used to identify and extract the most relevant details for specific job opportunities through AI-assisted features.
 
-<img width="1863" height="934" alt="Screenshot From 2026-11-11 15-08-19" src="https://github.com/user-attachments/assets/de04c308-a106-4a40-bab8-ce1a3387a423" />
+
+<img width="1860" height="928" alt="profileView" src="https://github.com/user-attachments/assets/06de2d2b-6815-47c7-9608-b8c34885f531" />
+
+<img width="1860" height="928" alt="applicationSetupView" src="https://github.com/user-attachments/assets/7b6ec46d-d65c-4139-86a3-87ccc3007adf" />
+
+<img width="1860" height="928" alt="applicationPlanView" src="https://github.com/user-attachments/assets/496e53ed-56a9-4501-a2bc-2eda523ad7f1" />
+
+<img width="1860" height="928" alt="applicationWritingView" src="https://github.com/user-attachments/assets/12ba0c51-f129-491d-acde-e6a560f94e2b" />
+
 
 ## Development Goals
 
